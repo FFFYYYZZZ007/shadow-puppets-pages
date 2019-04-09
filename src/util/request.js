@@ -1,3 +1,6 @@
+import { getCookie } from '../util/cookie.js'
+
+
 function checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
       return response;
@@ -15,7 +18,13 @@ function checkStatus(response) {
    * @return {object}           An object containing either "data" or "err"
    */
   export default async function request(url, options) {
-    console.log(options);
+    let headers = {
+        ...options.headers,
+        'ACCESS_TOKEN': getCookie("ACCESS_TOKEN")
+    }
+     options = {
+        ...options, headers
+    };
     const response = await fetch(url, options);
     checkStatus(response);
     return await response.json();

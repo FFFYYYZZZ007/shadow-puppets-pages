@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col } from 'antd';
-import CourseCard from './CourseCard';
+import CourseCard from '../CourseCard';
 
 class CourseList extends React.Component {
     render() {

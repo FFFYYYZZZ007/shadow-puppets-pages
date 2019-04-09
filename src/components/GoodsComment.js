@@ -4,7 +4,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 const TextArea = Input.TextArea;
-class GoodComment extends React.Component {
+class GoodsComment extends React.Component {
     state = {
         likes: 0,
         dislikes: 0,
@@ -150,4 +150,4 @@ class GoodComment extends React.Component {
     }
 }
 
-export default GoodComment;
+export default GoodsComment;

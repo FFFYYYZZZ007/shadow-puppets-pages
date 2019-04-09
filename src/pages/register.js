@@ -8,6 +8,11 @@ import TimedButton from '../components/TimedButton'
 import { register } from '../services/UserService'
 
 class RegistrationForm extends React.Component {
+
+    componentWillUpdate() {
+        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
+    };
+
     state = {
         confirmDirty: false,
         autoCompleteResult: [],

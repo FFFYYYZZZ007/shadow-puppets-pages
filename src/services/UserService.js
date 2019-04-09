@@ -29,9 +29,8 @@ export function login(user) {
         body: user,
         headers: {
             'Content-type': 'application/json; charset=utf-8',
-            'ACCESS_TOKEN': localStorage.getItem("token")
         },
-    }
+    };
     return request(url, options);
 }
 
@@ -43,5 +42,37 @@ export function sendVerificationCode(tel) {
     return request(url, options);
 }
 
+export function getUserManagerList(userListQO) {
+    let url = '/api/user/manager/list'
+    userListQO = JSON.stringify(userListQO);
+    let options = {
+        method: 'post',
+        body: userListQO,
+        headers: {
+            'Content-type': 'application/json; charset=utf-8',
+        },
+    };
+    return request(url, options);
+}
 
+export function updateUser(user) {
+    let url = '/api/user/update'
+    user = JSON.stringify(user);
+    let options = {
+        method: 'post',
+        body: user,
+        headers: {
+            'Content-type': 'application/json; charset=utf-8',
+        },
+    };
+    return request(url, options);
+}
+
+export function deleteUser(id){
+    let url = '/api/user/manager/remove?userId='+id;
+    let options = {
+        method: 'post'
+    };
+    return request(url, options);
+}
 

@@ -13,7 +13,7 @@ export default {
             // call 请求服务端数据, 通过 request
             const puzzle = yield call(getMessage, endPointURI);
             // 调用 reducers 中的方法
-            yield put({ type: 'addNewCard', payload: puzzle });
+            yield put({ type: 'addNewCard', payload: puzzle.data });
         }
     },
     reducers: {

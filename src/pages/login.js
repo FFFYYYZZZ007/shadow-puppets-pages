@@ -4,7 +4,12 @@ import styles from './css/login.css';
 import router from 'umi/router';
 import Link from 'umi/link';
 import { login } from '../services/UserService'
+import { setCookie } from '../util/cookie.js';
+
 class LoginForm extends React.Component {
+    componentWillUpdate() {
+        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
+    };
     handleLogin = (e) => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
@@ -16,7 +21,9 @@ class LoginForm extends React.Component {
                 console.log(result);
                 if (result.code === '200') {
                     message.success('登录成功!');
-                    localStorage.setItem("token",result.data);
+                    setCookie("ACCESS_TOKEN", result.data);
+                    setCookie("userName", result.msg.split(',')[0]);
+                    setCookie("admin", result.msg.split(',')[1]);
                     router.push('/');
                 } else {
                     message.error(result.msg);
@@ -29,6 +36,7 @@ class LoginForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         return (
             <div>
+            
                 <Row gutter={16}>
                     <Col offset={8} span={8} align='middle'>
                         <Form onSubmit={this.handleLogin.bind(this)} className={styles.login_form}>

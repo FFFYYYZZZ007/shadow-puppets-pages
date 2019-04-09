@@ -6,10 +6,9 @@ class MyCarousel extends React.Component {
         return (
             <div>
                 <Carousel autoplay>
-                    <div><img alt="" src={"http://souche-devqa.oss-cn-hangzhou.aliyuncs.com/20190403/jpg/a0d5b42cee71e2452f077897f29bee00.jpg"}/></div>
-                    <div><img alt="" src={"http://souche-devqa.oss-cn-hangzhou.aliyuncs.com/20190403/jpg/a0d5b42cee71e2452f077897f29bee00.jpg"}/></div>
-                    <div><img alt="" src={"http://souche-devqa.oss-cn-hangzhou.aliyuncs.com/20190403/jpg/a0d5b42cee71e2452f077897f29bee00.jpg"}/></div>
-                    <div><img alt="" src={"http://souche-devqa.oss-cn-hangzhou.aliyuncs.com/20190403/jpg/a0d5b42cee71e2452f077897f29bee00.jpg"}/></div>
+                    <div><img alt="" src={"http://fuyuaaa-bucket.oss-cn-hangzhou.aliyuncs.com/pics/%E9%A6%96%E9%A1%B51.jpg"}/></div>
+                    <div><img alt="" src={"http://fuyuaaa-bucket.oss-cn-hangzhou.aliyuncs.com/pics/%E9%A6%96%E9%A1%B52.jpg"}/></div>
+                    <div><img alt="" src={"http://fuyuaaa-bucket.oss-cn-hangzhou.aliyuncs.com/pics/%E9%A6%96%E9%A1%B53.jpg"}/></div>
                 </Carousel>
             </div>
         );

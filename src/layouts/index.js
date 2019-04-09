@@ -1,12 +1,76 @@
-import { Layout, Menu, Input, Row, Col, Divider } from 'antd';
+import { Layout, Menu, Input, Row, Col, Divider, Icon, } from 'antd';
 import Link from 'umi/link';
 import MyIcon from '../components/MyIcon';
+import { getCookie, delCookie } from '../util/cookie.js';
+import router from 'umi/router';
 
+// 引入子菜单组件
+const SubMenu = Menu.SubMenu;
 // Header, Footer, Sider, Content组件在Layout组件模块下
-const { Header, Footer, Content } = Layout;
+const { Header, Footer, Sider, Content } = Layout;
 const Search = Input.Search;
 
+
+function logout() {
+    delCookie("userName");
+    delCookie("ACCESS_TOKEN");
+    delCookie("admin");
+}
+
+function getCookieLocal() {
+    let userInfo = getCookie("userName");
+    if (userInfo === '') {
+        router.push("/error/403");
+    }
+    return userInfo;
+}
+
 function BasicLayout(props) {
+    
+    if (props.location.pathname.match("/manager")) {
+        return <Layout>
+            <Sider width={256} style={{ minHeight: '100vh', background: '#e6f7ff' }} theme='light'>
+                <div style={{ height: '32px', background: 'rgba(255,255,255,.2)', margin: '16px', textAlign: 'center' }}>
+                    <h1>皮影戏服务管理系统</h1>
+                </div>
+                <Menu theme="light" mode="inline" defaultSelectedKeys={['1']}>
+                    <Menu.Item key="1">
+                        <Icon type="pie-chart" />
+                        <span>数据分析</span>
+                        <Link to='/manager/dataAnalysis'></Link>
+                    </Menu.Item>
+                    <SubMenu
+                        key="sub1"
+                        title={<span><Icon type="dashboard" /><span>数据管理</span></span>}
+                    >
+                        <Menu.Item key="2"><Link to='/manager/userManager'>用户管理</Link></Menu.Item>
+                        <Menu.Item key="3"><Link to='/manager/goodsManager'>商品管理</Link></Menu.Item>
+                        <Menu.Item key="4"><Link to='/manager/categoryManager'>类别管理</Link></Menu.Item>
+                        <Menu.Item key="5"><Link to='/manager/orderManager'>订单管理</Link></Menu.Item>
+                    </SubMenu>
+                </Menu>
+            </Sider>
+            <Layout >
+                <Header style={{ background: '#fff', textAlign: 'center', padding: 0 }}>
+                    <Menu mode="horizontal" style={{ float: 'right' }} >
+                        <Menu.Item key="userInfo">
+                            <Link to="/userInfo">{getCookieLocal()}</Link>
+                        </Menu.Item>
+                        <Menu.Item key="logout">
+                            <Link to='/login' onClick={logout}>退出登录</Link>
+                        </Menu.Item>
+                    </Menu>
+                </Header>
+                <Content style={{ margin: '24px 16px 0' }}>
+                    <div style={{ minHeight: 360 }}>
+                        {props.children}
+                    </div>
+                </Content>
+                <Footer style={{ textAlign: 'center' }}>PYC ©2019 Created by fuyuaaa</Footer>
+            </Layout>
+        </Layout>
+    }
+
     return (
         <Layout style={{ background: '#fff' }} >
             <Header style={{ background: '#fff', textAlign: 'right', padding: 0 }}>
@@ -36,13 +100,52 @@ function BasicLayout(props) {
                         />
                     </Menu.Item>
                     <Menu.Item style={{ paddingLeft: 50 }} />
-                    <Menu.Item key="login">
-                        <Link to="/login">登录</Link>
-                    </Menu.Item>
-                    <Menu.Item key="register">
-                        <Link to="/register">注册</Link>
-                    </Menu.Item>
-                    <Menu.Item style={{ paddingLeft: 50 }} />
+                    {
+                        getCookie("ACCESS_TOKEN") !== undefined && getCookie("ACCESS_TOKEN") !== '' ?
+                            <Menu.Item key="userInfo">
+                                <Link to="/userInfo">{getCookie("userName")}</Link>
+                            </Menu.Item>
+                            :
+                            <Menu.Item key="login">
+                                <Link to="/login">登录</Link>
+                            </Menu.Item>
+                    }
+                    {
+                        getCookie("ACCESS_TOKEN") !== undefined && getCookie("ACCESS_TOKEN") !== '' ?
+                            <Menu.Item key="logout">
+                                <Link to='/login' onClick={logout}>退出登录</Link>
+                            </Menu.Item>
+                            :
+                            <Menu.Item key="register">
+                                <Link to="/register">注册</Link>
+                            </Menu.Item>
+                    }
+                    {
+                        getCookie("ACCESS_TOKEN") !== undefined && getCookie("ACCESS_TOKEN") !== '' ?
+                            <Menu.Item>
+                                <Link to="/shoppingCart"><Icon type="shopping-cart" /></Link>
+                            </Menu.Item>
+                            :
+                            null
+                    }
+                    {
+                        getCookie("ACCESS_TOKEN") !== undefined && getCookie("ACCESS_TOKEN") !== '' ?
+                            <Menu.Item>
+                                <Link to="/order"><Icon type="ordered-list" /></Link>
+                            </Menu.Item>
+                            :
+                            null
+                    }
+
+                    {
+                        getCookie("admin") !== undefined && getCookie("admin") === "true" ?
+                            <Menu.Item>
+                                <Link to="/manager/dataAnalysis"><Icon type="table" /></Link>
+                            </Menu.Item>
+                            :
+                            null
+                    }
+
                 </Menu>
             </Header>
             <Content >
