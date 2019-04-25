@@ -9,7 +9,7 @@ const namespace = 'goodsDetails';
 
 const mapStateToProps = (state) => {
     const goodsDetails = state[namespace].goodsDetails;
-    console.log(goodsDetails.imagesUrls)
+    console.log(goodsDetails.imagesUrls);
     return {
         goodsDetails,
     };
@@ -30,9 +30,9 @@ const mapDispatchToProps = (dispatch) => {
 @connect(mapStateToProps, mapDispatchToProps)
 class goodsDetails extends React.Component {
     
-    // componentWillUpdate() {
-    //     document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
-    // }
+    componentWillUpdate() {
+        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
+    }
 
     componentDidMount() {
         let id = this.props.location.search.substr(1);
