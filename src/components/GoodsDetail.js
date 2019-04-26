@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, Row, Col } from 'antd';
 import GoodsComment from './GoodsComment';
@@ -10,9 +9,9 @@ class GoodsDetail extends React.Component {
     render() {
         function callback(key) {
             console.log(key);
-        };
+        }
         return (
-            <div style={{width:900}}>
+            <div style={{ width: 900 }}>
                 <Row gutter={16}>
                     <Col span={1}>
 
@@ -24,25 +23,24 @@ class GoodsDetail extends React.Component {
                                 {this.props.imagesUrls.split(',').map(url => {
                                     return (
                                         <img alt=''
-                                            style={{width:790}}
-                                            src={url} 
-                                            key={url}
-                                            />
+                                             style={{ width: 790 }}
+                                             src={url}
+                                             key={url}
+                                        />
                                     );
                                 })}
                             </TabPane>
                             <TabPane tab="商品评价" key="2">
-                                <GoodsComment />
+                                <GoodsComment goodsId={this.props.goodsId}/>
                             </TabPane>
                         </Tabs>
                     </Col>
                     <Col span={1}>
                     </Col>
                 </Row>
-
-
             </div>
         );
     }
 }
+
 export default GoodsDetail;

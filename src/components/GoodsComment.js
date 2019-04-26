@@ -1,151 +1,76 @@
 import React from 'react';
 import {
-    Comment, Icon, Tooltip, Avatar, Form, Button, Input,
+    Comment, Tooltip, Avatar, Spin, Divider,
 } from 'antd';
 import moment from 'moment';
-const TextArea = Input.TextArea;
+import { getCommentList } from '@/services/CommentService';
+
 class GoodsComment extends React.Component {
     state = {
         likes: 0,
-        dislikes: 0,
         action: null,
+        commentList: [],
+        loading: true,
+        commentQO: {
+            pageNum: 1,
+            pageSize: 10,
+            total: 0,
+        },
+    };
+
+    componentDidMount() {
+        this.reloadCommentList();
+
     }
 
-    like = () => {
-        this.setState({
-            likes: 1,
-            dislikes: 0,
-            action: 'liked',
-        });
-    }
-
-    dislike = () => {
-        this.setState({
-            likes: 0,
-            dislikes: 1,
-            action: 'disliked',
+    reloadCommentList() {
+        let commentQO = {
+            pageNum: this.state.commentQO.pageNum,
+            pageSize: this.state.commentQO.pageSize,
+            goodsId: this.props.goodsId,
+        };
+        getCommentList(commentQO).then((result) => {
+            console.log(result);
+            this.setState({
+                loading: false,
+                commentList: result.data.list,
+                total: result.data.total,
+            });
         });
     }
 
     render() {
-        const { likes, dislikes, action } = this.state;
-
-        const actions = [
-            <span>
-                <Tooltip title="Like">
-                    <Icon
-                        type="like"
-                        theme={action === 'liked' ? 'filled' : 'outlined'}
-                        onClick={this.like}
-                    />
-                </Tooltip>
-                <span style={{ paddingLeft: 8, cursor: 'auto' }}>
-                    {likes}
-                </span>
-            </span>,
-            <span>
-                <Tooltip title="Dislike">
-                    <Icon
-                        type="dislike"
-                        theme={action === 'disliked' ? 'filled' : 'outlined'}
-                        onClick={this.dislike}
-                    />
-                </Tooltip>
-                <span style={{ paddingLeft: 8, cursor: 'auto' }}>
-                    {dislikes}
-                </span>
-            </span>,
-            <span>回复</span>,
-        ];
-
         return (
-            <React.Fragment>
-                <Comment
-                    actions={actions}
-                    author={'傅宇'}
-                    avatar={(
-                        <Avatar
-                            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                            alt="傅宇"
-                        />
-                    )}
-                    content={(
-                        <p>这个商品非常不错</p>
-                    )}
-                    datetime={(
-                        <Tooltip title={moment().format('YYYY-MM-DD HH:mm:ss')}>
-                            <span>{moment().fromNow()}</span>
-                        </Tooltip>
-                    )}
-                />
-                <Comment
-                    actions={actions}
-                    author={'傅宇'}
-                    avatar={(
-                        <Avatar
-                            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                            alt="傅宇"
-                        />
-                    )}
-                    content={(
-                        <p>这个商品非常不错</p>
-                    )}
-                    datetime={(
-                        <Tooltip title={moment().format('YYYY-MM-DD HH:mm:ss')}>
-                            <span>{moment().fromNow()}</span>
-                        </Tooltip>
-                    )}
-                />
-                <Comment
-                    actions={actions}
-                    author={'傅宇'}
-                    avatar={(
-                        <Avatar
-                            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                            alt="傅宇"
-                        />
-                    )}
-                    content={(
-                        <p>这个商品非常不错</p>
-                    )}
-                    datetime={(
-                        <Tooltip title={moment().format('YYYY-MM-DD HH:mm:ss')}>
-                            <span>{moment().fromNow()}</span>
-                        </Tooltip>
-                    )}
-                />
-                <Comment
-                    actions={actions}
-                    author={'傅宇'}
-                    avatar={(
-                        <Avatar
-                            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                            alt="傅宇"
-                        />
-                    )}
-                    content={(
-                        <p>这个商品非常不错</p>
-                    )}
-                    datetime={(
-                        <Tooltip title={moment().format('YYYY-MM-DD HH:mm:ss')}>
-                            <span>{moment().fromNow()}</span>
-                        </Tooltip>
-                    )}
-                />
-                <div>
-    <Form.Item>
-      <TextArea rows={4}  />
-    </Form.Item>
-    <Form.Item>
-      <Button
-        htmlType="submit"
-        type="primary"
-      >
-        Add Comment
-      </Button>
-    </Form.Item>
-  </div>
-            </React.Fragment>
+            <div>
+                <Spin spinning={this.state.loading}>
+                    {this.state.commentList.map(comment => {
+                        return (
+                            <div key={'comment_' + comment.id}
+                            >
+                                <Comment
+                                    author={comment.userName}
+                                    avatar={(
+                                        <Avatar style={{
+                                            color: '#f56a00',
+                                            backgroundColor: '#fde3cf',
+                                        }}>{comment.userName}</Avatar>
+
+                                    )}
+                                    content={(
+                                        <p>{comment.content}</p>
+                                    )}
+                                    datetime={(
+                                        <Tooltip title={moment().format('YYYY-MM-DD HH:mm:SS')}>
+                                            <span>{moment(comment.dateCreate, 'YYYY-MM-DD HH:mm:SS').fromNow()}</span>
+                                        </Tooltip>
+                                    )}
+                                />
+                                <Divider/>
+                            </div>
+                        );
+                    })}
+                </Spin>
+            </div>
         );
     }
 }

@@ -1,10 +1,13 @@
-import React from 'react'
+import React from 'react';
 import styles from './css/pay.css';
-import { Row, Col, Button, Divider, message, Modal } from 'antd';
-import { connect } from "dva";
-import { getAliPayUrl, checkTradeStatus, cancelGoodsOrderById } from '../services/GoodsOrderService'
+import { Row, Col, Button, Divider, message, Modal, Rate, Input } from 'antd';
+import { connect } from 'dva';
+import { getAliPayUrl, checkTradeStatus, cancelGoodsOrderById } from '../services/GoodsOrderService';
 import router from 'umi/router';
+import order from '@/pages/order';
+import { addComment } from '@/services/CommentService';
 
+const { TextArea } = Input;
 const namespace = 'goodsOrder';
 
 const mapStateToProps = (state) => {
@@ -23,7 +26,7 @@ const mapDispatchToProps = (dispatch) => {
             }
             const action = {
                 type: `${namespace}/getOrderById`,
-                payload: id
+                payload: id,
             };
             dispatch(action);
         },
@@ -38,17 +41,20 @@ class OrderInfo extends React.Component {
     };
 
     constructor(props) {
-        super(props)
-        let url = window.location.href
-        let split = url.split('=')
-        let id = split[1]
+        super(props);
+        let url = window.location.href;
+        let split = url.split('=');
+        let id = split[1];
         this.props.onDidMount(id);
         this.state = {
             loading: false,
             id: id,
             html: '',
             visible: false,
-        }
+            visible2: false,
+            comment: '',
+            starLevel: 0,
+        };
     }
 
     pay = () => {
@@ -57,14 +63,14 @@ class OrderInfo extends React.Component {
         getAliPayUrl(this.state.id).then((result) => {
             this.setState({ loading: false });
             console.log(result.data);
-            this.setState({ html: result.data })
-            this.showModal();
+            this.setState({ html: result.data });
+            this.showPayModal();
             this.checkStatus();
         });
-    }
+    };
 
     checkStatus = () => {
-        console.log(this.state.visible)
+        console.log(this.state.visible);
 
         if (this.state.visible === false) {
             return;
@@ -76,10 +82,9 @@ class OrderInfo extends React.Component {
                 this.props.onDidMount(this.state.id);
                 return;
             }
-        })
+        });
         setTimeout(() => this.checkStatus(), 2000);
-    }
-
+    };
 
 
     cancel = () => {
@@ -91,44 +96,114 @@ class OrderInfo extends React.Component {
             } else {
                 message.error(result.msg);
             }
-        })
-    }
+        });
+    };
 
-    showModal = () => {
+    showPayModal = () => {
         this.setState({
             visible: true,
         });
-    }
+    };
 
-    handleOk = (e) => {
+    handlePayOk = (e) => {
         console.log(e);
         this.setState({
             visible: false,
         });
-    }
+    };
 
-    handleCancel = (e) => {
+    payCancel = (e) => {
         console.log(e);
         this.setState({
             visible: false,
         });
-    }
+    };
+
+    //展示评论框
+    showModal(orderId) {
+        this.setState({
+            visible2: true,
+        });
+    };
+
+    //提交评论
+    handleOk = () => {
+        let comment = {
+            content: this.state.comment,
+            orderId: this.state.id,
+            starLevel: this.state.starLevel,
+        };
+        console.log(comment);
+        addComment(comment).then((result) => {
+            if (result.success === true) {
+                message.success(result.msg);
+                this.setState({
+                    visible2: false,
+                }, () => {
+                    this.props.onDidMount(this.state.id);
+                });
+            } else {
+                message.error(result.msg);
+            }
+
+        });
+
+    };
+
+    //取消展示评论框
+    handleCancel = () => {
+        this.setState({
+            visible2: false,
+            comment: '',
+            starLevel: 0,
+        });
+    };
+
+    //评论框改变
+    textAreaChange = (e) => {
+        this.setState({
+            comment: e.target.value,
+        });
+    };
+
+    //星级选择
+    rateChange = (value) => {
+        this.setState({
+            starLevel: value,
+        });
+    };
 
     render() {
 
         const bottom = (
-            this.props.goodsOrder.status === '已关闭' || this.props.goodsOrder.status === '已完成' ? <font key={'status'} size={2} color='green'>订单{this.props.goodsOrder.status}</font>
+            this.props.goodsOrder.status === '已关闭' || this.props.goodsOrder.status === '已完成' ?
+                <font key={'status'} size={2} color='green'>订单{this.props.goodsOrder.status}</font>
                 : (
                     this.props.goodsOrder.status === '已支付'
                         ?
                         <div>
-                            <font key={'status'} size={2} color='green'>订单{this.props.goodsOrder.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                            <font key={'status'} size={2}
+                                  color='green'>订单{this.props.goodsOrder.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>
                         </div>
                         :
-                        <div>
-                            <Button type='primary' loading={this.state.loading} onClick={this.pay}>确认支付</Button>&nbsp;&nbsp;
-                            <Button type='danger' loading={this.state.loading} onClick={this.cancel}>取消订单</Button>
-                        </div>
+                        (this.props.goodsOrder.status === '待评价'
+                                ?
+                                <div>
+                                    <font key={'status'} size={2}
+                                          color='green'>订单{this.props.goodsOrder.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                                    <Button key={'pj' + order.id} type='primary'
+                                            onClick={() => this.showModal(order.id)}
+                                    >
+                                        添加评价</Button>
+                                </div>
+                                :
+                                <div>
+                                    <Button type='primary' loading={this.state.loading}
+                                            onClick={this.pay}>确认支付</Button>&nbsp;&nbsp;
+                                    <Button type='danger' loading={this.state.loading} onClick={this.cancel}>取消订单</Button>
+                                </div>
+                        )
+
                 )
         );
 
@@ -146,25 +221,25 @@ class OrderInfo extends React.Component {
                             return (
                                 <div key={goodsVO.id}>
                                     <Row className={styles.info}
-                                        style={{ height: 150, background: '#EEEEEE' }}
-                                        type="flex" justify="space-around" align="middle"
+                                         style={{ height: 150, background: '#EEEEEE' }}
+                                         type="flex" justify="space-around" align="middle"
                                     >
                                         <Col offset={1} span={7}>
                                             <img style={{ width: 160, height: 120 }}
-                                                alt=''
-                                                src={goodsVO.mainImageUrl}
+                                                 alt=''
+                                                 src={goodsVO.mainImageUrl}
                                             />
                                         </Col>
                                         <Col span={4}>{goodsVO.goodsName}</Col>
-                                        <Col span={6} />
+                                        <Col span={6}/>
                                         <Col span={3}>
-                                            <h3 >￥{goodsVO.price}</h3>
+                                            <h3>￥{goodsVO.price}</h3>
                                         </Col>
-                                        <Col span={3} >
-                                            <h3 >{goodsVO.num}个</h3>
+                                        <Col span={3}>
+                                            <h3>{goodsVO.num}个</h3>
                                         </Col>
                                     </Row>
-                                    <Divider />
+                                    <Divider/>
                                 </div>
                             );
                         })}
@@ -173,32 +248,45 @@ class OrderInfo extends React.Component {
                             <div>
                                 运费：{this.props.goodsOrder.expressFee}元，商品总价：{this.props.goodsOrder.dealPrice}元，{this.props.goodsOrder.status === '未支付' ? '未支付' : '已支付'}：{this.props.goodsOrder.dealPrice + this.props.goodsOrder.expressFee} 元。
                             </div>
-                            <Col offset={10}>{bottom}</Col>
+                            <Col offset={8}>{bottom}</Col>
                         </div>
                     </Row>
 
                     <Modal
                         style={{ top: 20 }}
                         width='60%'
-                        title={<img alt='' src='https://t.alipayobjects.com/images/T1HHFgXXVeXXXXXXXX.png' />}
+                        title={<img alt='' src='https://t.alipayobjects.com/images/T1HHFgXXVeXXXXXXXX.png'/>}
                         visible={this.state.visible}
-                        onOk={this.handleOk}
-                        onCancel={this.handleCancel}
+                        onOk={this.handlePayOk}
+                        onCancel={this.payCancel}
                     >
 
                         <div style={{
                             height: 440,
-                            overflow: 'hidden'
+                            overflow: 'hidden',
                         }}>
                             <iframe
                                 title='支付宝'
-                                style={{ width: '100%', border: '0px',height: 600, marginTop: -170, marginLeft: -10, }}
+                                style={{ width: '100%', border: '0px', height: 600, marginTop: -170, marginLeft: -10 }}
                                 sandbox="allow-scripts allow-forms allow-same-origin"
                                 scrolling="no"
                                 src={this.state.html}
                             />
                         </div>
 
+                    </Modal>
+
+                    <Modal
+                        title="添加评价"
+                        visible={this.state.visible2}
+                        onOk={this.handleOk}
+                        onCancel={this.handleCancel}
+                        destroyOnClose
+                    >
+                        <TextArea rows={4} defaultValue={this.state.comment}
+                                  onChange={this.textAreaChange}/>
+                        您对这次订单的满意程度：<Rate defaultValue={this.state.starLevel}
+                                          onChange={this.rateChange}/>
                     </Modal>
                 </div>
             </div>

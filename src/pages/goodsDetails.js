@@ -62,6 +62,7 @@ class goodsDetails extends React.Component {
                                 </Col>
                                 <Col span={18}>
                                     <GoodsDetail
+                                        goodsId={goodsDetails.id}
                                         introduction={goodsDetails.introduction}
                                         imagesUrls={goodsDetails.imagesUrls}
                                     />
