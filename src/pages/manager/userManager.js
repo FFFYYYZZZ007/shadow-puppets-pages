@@ -1,8 +1,9 @@
-import React from 'react'
+import React from 'react';
 import {
-    Table, Input, InputNumber, Popconfirm, Form, Button, message, Card, Select, Row, Col
+    Table, Input, InputNumber, Popconfirm, Form, Button, message, Card, Select, Row, Col,
 } from 'antd';
-import { getUserManagerList, updateUser, deleteUser } from '../../services/UserService'
+import { getUserManagerList, updateUser, deleteUser } from '../../services/UserService';
+
 const FormItem = Form.Item;
 const EditableContext = React.createContext();
 const Option = Select.Option;
@@ -10,9 +11,9 @@ const Option = Select.Option;
 class EditableCell extends React.Component {
     getInput = () => {
         if (this.props.inputType === 'number') {
-            return <InputNumber />;
+            return <InputNumber/>;
         }
-        return <Input />;
+        return <Input/>;
     };
 
     render() {
@@ -62,15 +63,15 @@ class UserManager extends React.Component {
             pagination: {
                 current: 1,
                 pageSize: 8,
-                total: 0
+                total: 0,
             },
-            loading: false
+            loading: false,
         };
         this.columns = [
-            { title: '用户名', dataIndex: 'userName', width: '20%', },
-            { title: '性别', dataIndex: 'sex', width: '15%', editable: true, },
-            { title: '出生日期', dataIndex: 'birthday', width: '20%', editable: true, },
-            { title: '手机号码', dataIndex: 'tel', width: '20%', },
+            { title: '用户名', dataIndex: 'userName', width: '20%' },
+            { title: '性别', dataIndex: 'sex', width: '15%', editable: true },
+            { title: '出生日期', dataIndex: 'birthday', width: '20%', editable: true },
+            { title: '手机号码', dataIndex: 'tel', width: '20%' },
             {
                 title: '操作',
                 dataIndex: 'operation',
@@ -96,15 +97,16 @@ class UserManager extends React.Component {
                                     </Popconfirm>
                                 </span>
                             ) : (
-                                    <span>
-                                        <Button type='primary' disabled={editingKey !== ''} onClick={() => this.edit(record.key)}>编辑</Button>&nbsp;&nbsp;
-                                        <Popconfirm
-                                            title="此操作不可逆，确认删除?"
-                                            onConfirm={() => this.delete(record.key)}>
+                                <span>
+                                        <Button type='primary' disabled={editingKey !== ''}
+                                                onClick={() => this.edit(record.key)}>编辑</Button>&nbsp;&nbsp;
+                                    <Popconfirm
+                                        title="此操作不可逆，确认删除?"
+                                        onConfirm={() => this.delete(record.key)}>
                                             <Button type='danger'>删除</Button>
                                         </Popconfirm>
                                     </span>
-                                )}
+                            )}
                         </div>
                     );
                 },
@@ -113,7 +115,7 @@ class UserManager extends React.Component {
     }
 
     componentDidMount() {
-        this.changeUserManagerList()
+        this.changeUserManagerList();
     }
 
     changeUserManagerList() {
@@ -123,11 +125,11 @@ class UserManager extends React.Component {
             keyword: this.state.keyword,
             tel: this.state.tel,
             // sex: this.state.sex,
-        }
-        console.log(userListQO)
+        };
+        console.log(userListQO);
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         getUserManagerList(userListQO).then((result) => {
             this.changeLoading();
             let data = [];
@@ -137,20 +139,20 @@ class UserManager extends React.Component {
                     userName: user.userName,
                     sex: user.sex,
                     birthday: user.birthday,
-                    tel: user.tel
+                    tel: user.tel,
                 });
                 return null;
-            })
+            });
             this.setState({
                 data: data,
                 pagination: {
                     current: result.data.pageNum,
                     pageSize: result.data.pageSize,
                     total: result.data.total,
-                }
-            })
-            console.log(result)
-        })
+                },
+            });
+            console.log(result);
+        });
     }
 
     isEditing = record => record.key === this.state.editingKey;
@@ -160,22 +162,22 @@ class UserManager extends React.Component {
     };
 
     delete = (key) => {
-        this.changeLoading()
+        this.changeLoading();
         deleteUser(key).then((result) => {
             if (result.code === '200') {
                 message.success(result.msg);
-                this.changeUserManagerList()
+                this.changeUserManagerList();
             } else {
-                message.error(result.msg)
-                this.changeLoading()
+                message.error(result.msg);
+                this.changeLoading();
             }
-        })
-    }
+        });
+    };
 
     changeLoading() {
         this.setState({
-            loading: this.state.loading ? false : true
-        })
+            loading: this.state.loading ? false : true,
+        });
     }
 
     save(form, key) {
@@ -201,20 +203,20 @@ class UserManager extends React.Component {
     }
 
     onUpdateUser(user) {
-        console.log(user)
+        console.log(user);
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         updateUser(user).then((result) => {
             if (result.code === '200') {
                 message.success(result.msg);
             } else {
-                message.error(result.msg)
+                message.error(result.msg);
             }
             this.setState({
-                loading: false
-            })
-        })
+                loading: false,
+            });
+        });
     }
 
     edit(key) {
@@ -222,18 +224,26 @@ class UserManager extends React.Component {
     }
 
     pageChange(pageNum) {
-        const pageInfo = { ...this.state.pagination }
+        const pageInfo = { ...this.state.pagination };
         pageInfo.current = pageNum;
         this.setState({
-            pagination: pageInfo
+            pagination: pageInfo,
         }, () => {
-            this.changeUserManagerList()
-        })
+            this.changeUserManagerList();
+        });
     }
 
-    keywordChange(e) { this.setState({ keyword: e.target.value }) };
-    telChange(e) { this.setState({ tel: e.target.value }) }
-    sexChange(sex) { this.setState({ sex: sex }) }
+    keywordChange(e) {
+        this.setState({ keyword: e.target.value });
+    };
+
+    telChange(e) {
+        this.setState({ tel: e.target.value });
+    }
+
+    sexChange(sex) {
+        this.setState({ sex: sex });
+    }
 
     render() {
         const components = {
@@ -277,9 +287,12 @@ class UserManager extends React.Component {
                 <div style={{ background: '#fff' }}>
                     <div style={{ padding: 24 }}>
                         <div style={{ paddingBottom: 24 }}>
-                            <Input style={{ width: 200 }} placeholder="请输入用户名" onChange={e => this.keywordChange(e)} allowClear />&nbsp;&nbsp;&nbsp;
-                            <Input style={{ width: 200 }} placeholder="请输入手机号" onChange={e => this.telChange(e)} allowClear />&nbsp;&nbsp;&nbsp;
-                            <Select style={{ width: 200 }} placeholder='请选择性别' allowClear onChange={e => this.sexChange(e)}>
+                            <Input style={{ width: 200 }} placeholder="请输入用户名" onChange={e => this.keywordChange(e)}
+                                   allowClear/>&nbsp;&nbsp;&nbsp;
+                            <Input style={{ width: 200 }} placeholder="请输入手机号" onChange={e => this.telChange(e)}
+                                   allowClear/>&nbsp;&nbsp;&nbsp;
+                            <Select style={{ width: 200 }} placeholder='请选择性别' allowClear
+                                    onChange={e => this.sexChange(e)}>
                                 <Option value="1">男</Option>
                                 <Option value="0">女</Option>
                             </Select>&nbsp;&nbsp;&nbsp;

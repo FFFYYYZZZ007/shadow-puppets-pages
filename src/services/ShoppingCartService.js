@@ -19,12 +19,19 @@ export function addShoppingCart(shoppingCart) {
     return request(url, option);
 }
 
-export function deleteShoppingCartList(shoppingCartIdList) {
-    let url = 'api/cart/list';
+export function deleteOneShoppingCart(id) {
+    let url = 'api/cart/delete/one?shoppingCartId=' + id;
     let option = {
         method: 'post',
-        body: shoppingCartIdList,
-        headers: { 'Content-type': 'application/json; charset=utf-8' },
+    };
+    return request(url, option);
+}
+
+
+export function deleteAllShoppingCart() {
+    let url = 'api/cart/delete/all';
+    let option = {
+        method: 'post',
     };
     return request(url, option);
 }

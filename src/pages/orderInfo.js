@@ -120,7 +120,7 @@ class OrderInfo extends React.Component {
     };
 
     //展示评论框
-    showModal(orderId) {
+    showModal() {
         this.setState({
             visible2: true,
         });

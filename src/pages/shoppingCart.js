@@ -4,38 +4,7 @@ import styles from './css/shoppingCart.css';
 import { connect } from 'dva';
 import router from 'umi/router';
 import { addNewGoodsOrder } from '../services/GoodsOrderService';
-
-const columns = [{
-    title: '商品',
-    dataIndex: 'goodsName',
-    render: text => <div>{text}</div>,
-}, {
-    title: '金额',
-    dataIndex: 'price',
-}, {
-    title: '数量',
-    dataIndex: 'num',
-}, {
-    title: '操作',
-    render: (text, record) =>
-        <Popconfirm title="确定删除?" onConfirm={() => {
-            handleDelete(record.key)
-        }}>
-            <Button type="danger" icon="delete" shape='circle' />
-        </Popconfirm>
-}];
-
-var list = [];
-
-const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        list = selectedRowKeys;
-    },
-};
-const handleDelete = (key) => {
-    console.log(key);
-}
+import { deleteOneShoppingCart, deleteAllShoppingCart } from '@/services/ShoppingCartService';
 
 
 const namespace = 'shoppingCart';
@@ -58,6 +27,7 @@ const mapDispatchToProps = (dispatch) => {
         },
     };
 };
+let list = [];
 
 @connect(mapStateToProps, mapDispatchToProps)
 class ShoppingCart extends React.Component {
@@ -68,34 +38,82 @@ class ShoppingCart extends React.Component {
 
     constructor(props) {
         super(props);
-        this.goPay = this.goPay.bind(this)
+        this.goPay = this.goPay.bind(this);
     }
 
     componentDidMount() {
         this.props.onDidMount();
     }
 
+    columns = [{
+        title: '商品',
+        dataIndex: 'goodsName',
+        render: text => <div>{text}</div>,
+    }, {
+        title: '金额',
+        dataIndex: 'price',
+    }, {
+        title: '数量',
+        dataIndex: 'num',
+    }, {
+        title: '操作',
+        render: (text, record) =>
+            <Popconfirm title="确定删除?" onConfirm={() => {
+                this.handleDelete(record.key);
+            }}>
+                <Button type="danger" icon="delete" shape='circle'/>
+            </Popconfirm>,
+    }];
+
+
+    rowSelection = {
+        onChange: (selectedRowKeys, selectedRows) => {
+            console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+            list = selectedRowKeys;
+        },
+    };
+    handleDelete = (key) => {
+        deleteOneShoppingCart(key).then((result) => {
+            this.showMessage(result);
+        });
+    };
+
+    handleDeleteAll = () => {
+        deleteAllShoppingCart().then((result) => {
+            this.showMessage(result);
+        });
+    };
+
+    showMessage(result) {
+        if (result.success === true) {
+            message.success(result.msg,1);
+            this.props.onDidMount();
+        } else {
+            message.error(result.msg,1);
+        }
+    }
+
     goPay() {
         console.log(list);
         //生成一个订单
         let order = {
-            "shoppingCartIdList": list,
-        }
+            'shoppingCartIdList': list,
+        };
         addNewGoodsOrder(order).then((result) => {
             if (result.success === true) {
                 message.success(result.msg, 5);
                 //跳转到该订单的支付页
                 router.push({
                     pathname: '/orderInfo',
-                    query:{
-                        orderId: result.data
-                    }
+                    query: {
+                        orderId: result.data,
+                    },
                 });
             } else {
                 message.error(result.msg, 5);
             }
 
-        })
+        });
 
     }
 
@@ -105,14 +123,14 @@ class ShoppingCart extends React.Component {
                 <div className={styles.cart} style={{ padding: 30 }}>
                     <div>
                         <span style={{ fontSize: 25 }}>我的购物车</span>
-                        <Button type='default' style={{ float: 'right' }}>清空购物车</Button>
+                        <Button onClick={this.handleDeleteAll} type='default' style={{ float: 'right' }}>清空购物车</Button>
                     </div>
                     <Table
                         style={{ paddingTop: 10 }} bordered
-                        rowSelection={rowSelection} columns={columns}
-                        dataSource={this.props.shoppingCartList} />
+                        rowSelection={this.rowSelection} columns={this.columns}
+                        dataSource={this.props.shoppingCartList}/>
                     <Button type='primary' style={{ float: 'right' }}
-                        onClick={this.goPay}
+                            onClick={this.goPay}
                     >去结算</Button>
                     <div style={{ height: 10 }}></div>
                 </div>
