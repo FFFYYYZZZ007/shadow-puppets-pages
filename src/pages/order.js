@@ -3,7 +3,7 @@ import styles from './css/order.css';
 import { Row, Col, Card, Button, Divider, Tabs, message, Pagination, Modal, Input, Rate } from 'antd';
 import router from 'umi/router';
 import { connect } from 'dva';
-import { cancelGoodsOrderById } from '../services/GoodsOrderService';
+import { cancelGoodsOrderById, confirmReceipt } from '../services/GoodsOrderService';
 import { addComment } from '@/services/CommentService';
 
 const TabPane = Tabs.TabPane;
@@ -159,6 +159,13 @@ class order extends React.Component {
         });
     };
 
+    confirmReceipt = (orderId) => {
+        confirmReceipt(orderId).then((result) => {
+            message.success(result.msg);
+            this.onChange();
+        });
+    };
+
     render() {
         return (
             <div style={{ paddingLeft: 150, paddingRight: 150 }}>
@@ -167,16 +174,17 @@ class order extends React.Component {
                         <Row span={6} style={{ height: 30, paddingBottom: 30 }}><h1>我的订单</h1></Row>
                         <Tabs tabPosition={'left'} defaultActiveKey="-1" onChange={(e) => this.callback(e)}>
                             <TabPane tab="全部" key="-1"/>
-                            <TabPane tab="未支付" key="0"/>
-                            <TabPane tab="已支付" key="1"/>
-                            <TabPane tab="待评价" key="2"/>
-                            <TabPane tab="已完成" key="3"/>
-                            <TabPane tab="已关闭" key="4"/>
+                            <TabPane tab="待付款" key="0"/>
+                            <TabPane tab="待发货" key="1"/>
+                            <TabPane tab="待收货" key="2"/>
+                            <TabPane tab="待评价" key="3"/>
+                            <TabPane tab="已完成" key="4"/>
+                            <TabPane tab="已关闭" key="5"/>
                         </Tabs>
                     </Col>
                     <Col span={20}>
 
-                        {this.props.goodsOrderList !== undefined && this.props.goodsOrderList.list!==undefined && this.props.goodsOrderList.list.length !== 0 ?
+                        {this.props.goodsOrderList !== undefined && this.props.goodsOrderList.list !== undefined && this.props.goodsOrderList.list.length !== 0 ?
                             this.props.goodsOrderList.list.map(order => {
                                 return (
                                     <div key={order.id}>
@@ -194,7 +202,7 @@ class order extends React.Component {
 
                                                       ]
                                                       :
-                                                      (order.status === '未支付' ?
+                                                      (order.status === '待付款' ?
                                                               [
                                                                   <font key={'status'} size={2}
                                                                         color='green'>{order.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>,
@@ -203,28 +211,49 @@ class order extends React.Component {
                                                                   <font key={'kg' + order.id}>&nbsp;&nbsp;</font>,
                                                                   <Button key={'cancle' + order.id}
                                                                           onClick={() => this.deleteOrder(order.id)}>取消订单</Button>,
+                                                                  <font key={'kg2' + order.id}>&nbsp;&nbsp;</font>,
+                                                                  <Button key={'orderInfo' + order.id}
+                                                                          type='primary'
+                                                                          onClick={() => this.orderInfo(order.id)}>查看详情</Button>,
                                                               ]
                                                               :
                                                               (order.status === '待评价' ?
-                                                                  [
-                                                                      <font key={'status'} size={2}
-                                                                            color='green'>{order.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>,
-                                                                      <Button key={'orderInfo' + order.id}
-                                                                              type='primary'
-                                                                              onClick={() => this.orderInfo(order.id)}>查看详情</Button>,
-                                                                      <font key={'kg2' + order.id}>&nbsp;&nbsp;</font>,
-                                                                      <Button key={'pj' + order.id} type='primary'
-                                                                              onClick={() => this.showModal(order.id)}
-                                                                      >
-                                                                          添加评价</Button>,
-                                                                  ] :
-                                                                  [
-                                                                      <font key={'status'} size={2}
-                                                                            color='green'>{order.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>,
-                                                                      <Button key={'orderInfo' + order.id}
-                                                                              type='primary'
-                                                                              onClick={() => this.orderInfo(order.id)}>查看详情</Button>,
-                                                                  ])
+                                                                      [
+                                                                          <font key={'status'} size={2}
+                                                                                color='green'>{order.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>,
+                                                                          <Button key={'orderInfo' + order.id}
+                                                                                  type='primary'
+                                                                                  onClick={() => this.orderInfo(order.id)}>查看详情</Button>,
+                                                                          <font
+                                                                              key={'kg2' + order.id}>&nbsp;&nbsp;</font>,
+                                                                          <Button key={'pj' + order.id} type='primary'
+                                                                                  onClick={() => this.showModal(order.id)}
+                                                                          >
+                                                                              添加评价</Button>,
+                                                                      ] : (order.status === '待收货' ?
+                                                                          [
+                                                                              <font key={'status'} size={2}
+                                                                                    color='green'>{order.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>,
+                                                                              <Button key={'orderInfo' + order.id}
+                                                                                      type='primary'
+                                                                                      onClick={() => this.orderInfo(order.id)}>查看详情</Button>,
+                                                                              <font
+                                                                                  key={'kg2' + order.id}>&nbsp;&nbsp;</font>,
+                                                                              <Button key={'pj' + order.id}
+                                                                                      type='primary'
+                                                                                      onClick={() => this.confirmReceipt(order.id)}
+                                                                              >
+                                                                                  确认收货</Button>,
+                                                                          ]
+                                                                          :
+                                                                          [
+                                                                              <font key={'status'} size={2}
+                                                                                    color='green'>{order.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>,
+                                                                              <Button key={'orderInfo' + order.id}
+                                                                                      type='primary'
+                                                                                      onClick={() => this.orderInfo(order.id)}>查看详情</Button>,
+                                                                          ])
+                                                              )
                                                       )
                                               }
                                         >
@@ -254,7 +283,7 @@ class order extends React.Component {
                                                     </div>
                                                 );
                                             })}
-                                            运费：{order.expressFee}元，商品总价：{order.dealPrice}元，{order.status}：{order.dealPrice + order.expressFee} 元。
+                                            运费：{order.expressFee}元，商品总价：{order.dealPrice}元，订单总价：{order.dealPrice + order.expressFee} 元。
                                         </Card>
                                         <Divider></Divider>
                                         <Modal

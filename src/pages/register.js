@@ -2,17 +2,12 @@ import React from 'react';
 import styles from './css/register.css';
 import router from 'umi/router';
 import {
-    Form, Input, Row, Col, Button,message
+    Form, Input, Row, Col, Button, message,
 } from 'antd';
-import TimedButton from '../components/TimedButton'
-import { register } from '../services/UserService'
+import TimedButton from '../components/TimedButton';
+import { register } from '../services/UserService';
 
 class RegistrationForm extends React.Component {
-
-    componentWillUpdate() {
-        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
-    };
-
     state = {
         confirmDirty: false,
         autoCompleteResult: [],
@@ -21,6 +16,7 @@ class RegistrationForm extends React.Component {
 
     // 调用生命周期钩子函数，清除由于路由跳转未卸载的组件(此页面是MyButton,由于其中使用了异步定时任务)
     componentWillUnmount() {
+        document.getElementById('root').scrollIntoView(true);
         clearInterval(this.interval);
     }
 
@@ -28,8 +24,8 @@ class RegistrationForm extends React.Component {
     handleChangeTel = (e) => {
         this.setState({
             tel: e.target.value,
-        })
-    }
+        });
+    };
 
     handleRegister = (e) => {
         e.preventDefault();
@@ -39,27 +35,27 @@ class RegistrationForm extends React.Component {
                 || temp.tel === undefined || temp.code === undefined) {
                 return;
             }
-            let passwordLength =  temp.password.length;
-            if (passwordLength < 8||passwordLength > 13){
-                message.error('密码长度应在8-12位！');
+            let passwordLength = temp.password.length;
+            if (passwordLength < 8 || passwordLength > 13) {
+                message.error('密码长度应在8-12位！',2);
                 return;
             }
             register(temp).then((result) => {
                 console.log(result);
                 if (result.code === '200') {
-                    message.success('注册成功，即将跳转到登录界面');
+                    message.success('注册成功，即将跳转到登录界面',1);
                     router.push('/login');
                 } else {
                     message.error(result.msg);
                 }
-            })
+            });
         });
-    }
+    };
 
     handleConfirmBlur = (e) => {
         const value = e.target.value;
         this.setState({ confirmDirty: this.state.confirmDirty || !!value });
-    }
+    };
 
     compareToFirstPassword = (rule, value, callback) => {
         const form = this.props.form;
@@ -68,7 +64,7 @@ class RegistrationForm extends React.Component {
         } else {
             callback();
         }
-    }
+    };
 
     validateToNextPassword = (rule, value, callback) => {
         const form = this.props.form;
@@ -76,7 +72,7 @@ class RegistrationForm extends React.Component {
             form.validateFields(['confirm'], { force: true });
         }
         callback();
-    }
+    };
 
     render() {
 
@@ -115,7 +111,7 @@ class RegistrationForm extends React.Component {
                                 {getFieldDecorator('userName', {
                                     rules: [{ required: true, message: '请输入用户名!', whitespace: true }],
                                 })(
-                                    <Input />
+                                    <Input/>,
                                 )}
                             </Form.Item>
                             <Form.Item
@@ -128,7 +124,7 @@ class RegistrationForm extends React.Component {
                                         validator: this.validateToNextPassword,
                                     }],
                                 })(
-                                    <Input type="password" />
+                                    <Input type="password"/>,
                                 )}
                             </Form.Item>
                             <Form.Item
@@ -141,7 +137,7 @@ class RegistrationForm extends React.Component {
                                         validator: this.compareToFirstPassword,
                                     }],
                                 })(
-                                    <Input type="password" onBlur={this.handleConfirmBlur} />
+                                    <Input type="password" onBlur={this.handleConfirmBlur}/>,
                                 )}
                             </Form.Item>
 
@@ -151,7 +147,7 @@ class RegistrationForm extends React.Component {
                                 {getFieldDecorator('tel', {
                                     rules: [{ required: true, message: '请输入手机号!' }],
                                 })(
-                                    <Input onChange={this.handleChangeTel}/>
+                                    <Input onChange={this.handleChangeTel}/>,
                                 )}
                             </Form.Item>
                             <Form.Item
@@ -162,7 +158,7 @@ class RegistrationForm extends React.Component {
                                         {getFieldDecorator('code', {
                                             rules: [{ required: true, message: '请输入验证码!' }],
                                         })(
-                                            <Input />
+                                            <Input/>,
                                         )}
                                     </Col>
                                     <Col span={12}>
@@ -171,8 +167,9 @@ class RegistrationForm extends React.Component {
                                 </Row>
                             </Form.Item>
                             <Form.Item {...tailFormItemLayout}>
-                                <Button type="primary" htmlType="submit" className={styles.register_form_button}>注册</Button>
-            
+                                <Button type="primary" htmlType="submit"
+                                        className={styles.register_form_button}>注册</Button>
+
                             </Form.Item>
                         </Form>
                     </Col>

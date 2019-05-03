@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './css/pay.css';
 import { Row, Col, Button, Divider, message, Modal, Rate, Input } from 'antd';
 import { connect } from 'dva';
-import { getAliPayUrl, checkTradeStatus, cancelGoodsOrderById } from '../services/GoodsOrderService';
+import { getAliPayUrl, checkTradeStatus, cancelGoodsOrderById, confirmReceipt } from '../services/GoodsOrderService';
 import router from 'umi/router';
 import order from '@/pages/order';
 import { addComment } from '@/services/CommentService';
@@ -173,38 +173,54 @@ class OrderInfo extends React.Component {
         });
     };
 
+    confirmReceipt = (orderId) => {
+        confirmReceipt(orderId).then((result) => {
+            message.success(result.msg);
+            this.props.onDidMount(orderId);
+        });
+    };
+
     render() {
 
+
         const bottom = (
-            this.props.goodsOrder.status === '已关闭' || this.props.goodsOrder.status === '已完成' ?
+            this.props.goodsOrder.status === '已关闭' || this.props.goodsOrder.status === '已完成' || this.props.goodsOrder.status === '待发货' ?
                 <font key={'status'} size={2} color='green'>订单{this.props.goodsOrder.status}</font>
-                : (
-                    this.props.goodsOrder.status === '已支付'
+                :
+                (this.props.goodsOrder.status === '待评价'
                         ?
                         <div>
                             <font key={'status'} size={2}
                                   color='green'>订单{this.props.goodsOrder.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                            <Button key={'pj' + order.id} type='primary'
+                                    onClick={() => this.showModal(order.id)}
+                            >
+                                添加评价</Button>
                         </div>
                         :
-                        (this.props.goodsOrder.status === '待评价'
+                        (this.props.goodsOrder.status === '待付款'
                                 ?
-                                <div>
-                                    <font key={'status'} size={2}
-                                          color='green'>订单{this.props.goodsOrder.status}&nbsp;&nbsp;&nbsp;&nbsp;</font>
-                                    <Button key={'pj' + order.id} type='primary'
-                                            onClick={() => this.showModal(order.id)}
-                                    >
-                                        添加评价</Button>
-                                </div>
-                                :
                                 <div>
                                     <Button type='primary' loading={this.state.loading}
                                             onClick={this.pay}>确认支付</Button>&nbsp;&nbsp;
-                                    <Button type='danger' loading={this.state.loading} onClick={this.cancel}>取消订单</Button>
+                                    <Button type='danger' loading={this.state.loading}
+                                            onClick={this.cancel}>取消订单</Button>
                                 </div>
+                                :
+                                (this.props.goodsOrder.status === '待收货'
+                                        ?
+                                        <div>
+                                            <Button type='primary' loading={this.state.loading}
+                                                    onClick={() => this.confirmReceipt(this.state.id)}>确认收货</Button>
+                                        </div>
+                                        :
+                                        null
+                                )
                         )
 
                 )
+
+
         );
 
         return (

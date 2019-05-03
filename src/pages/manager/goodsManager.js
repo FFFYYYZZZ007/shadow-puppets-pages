@@ -36,7 +36,7 @@ const categoryStatisticsInfoList = [];
 class EditableCell extends React.Component {
 
     componentWillUpdate() {
-        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
+        document.getElementById('root').scrollIntoView(true);
     }
 
     getInput = () => {
@@ -274,7 +274,7 @@ class GoodsManager extends React.Component {
     };
 
     changeLoading() {
-        this.setState({ loading: this.state.loading ? false : true });
+        this.setState({ loading: !this.state.loading });
     }
 
     save(form, key) {
@@ -488,16 +488,16 @@ class GoodsManager extends React.Component {
                                     })}
                                 </Select><br/><br/>
                                 <label>商品简介：</label><TextArea style={{ width: 400, height: 100 }}
-                                                              onChange={this.addGoodsIntroduction}></TextArea><br/><br/>
+                                                              onChange={this.addGoodsIntroduction}/><br/><br/>
                                 <label>商品价格：</label><InputNumber style={{ width: 200 }} precision={2}
-                                                                 onChange={this.addGoodsPrice}></InputNumber><br/><br/>
+                                                                 onChange={this.addGoodsPrice}/><br/><br/>
                                 <label>商品状态：</label>
                                 <Select style={{ width: 200 }} onChange={this.addGoodsSaleStatus}>
                                     <Option value="1" key={1}>在售</Option>
                                     <Option value="0" key={0}>未上架</Option>
                                 </Select><br/><br/>
                                 <label>库存数量：</label><InputNumber style={{ width: 200 }}
-                                                                 onChange={this.addGoodsQuantity}></InputNumber><br/><br/>
+                                                                 onChange={this.addGoodsQuantity}/><br/><br/>
                                 <label>商品主图：</label>
                                 <Upload
                                     action="/api/goods/manager/image/main/upload/"
@@ -541,7 +541,7 @@ class GoodsManager extends React.Component {
                                     id={record.id}
                                     imagesUrls={record.imagesUrls}
                                     goodsId={record.id}
-                                ></PicturesWall>}
+                                />}
                             />
                         </EditableContext.Provider>
                     </div>

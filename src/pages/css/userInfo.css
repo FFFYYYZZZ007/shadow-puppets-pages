@@ -1,0 +1,12 @@
+
+.div_userInfo{
+    padding-left: 200px;
+    padding-right: 200px;
+}
+
+.tab_userInfo{
+    box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, .3);
+    border-radius: 6px;
+    background: #f8fafc;
+    min-height: 400px;
+}

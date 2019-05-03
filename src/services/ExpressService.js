@@ -11,6 +11,14 @@ export function getList(expressDeliveryQO) {
     return request(url, option);
 }
 
+export function getOne(orderId) {
+    let url = '/api/delivery/manager/one?orderId='+orderId;
+    let option = {
+        method: 'post',
+    };
+    return request(url, option);
+}
+
 export function ship(shipQO) {
     shipQO = JSON.stringify(shipQO);
     let url = '/api/delivery/manager/ship';

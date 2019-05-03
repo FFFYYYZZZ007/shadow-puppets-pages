@@ -1,235 +1,188 @@
-import React from 'react'
-import {
- Popconfirm, Form, Button, message, 
-} from 'antd';
-import { getCategory, addCategory, updateCategory, removeCategory } from '../../services/GoodsService'
-const EditableContext = React.createContext();
+import React from 'react';
+import { ChartCard, Field, MiniBar, MiniProgress, Bar, MiniArea, Pie } from 'ant-design-pro/lib/Charts';
+import { Row, Col, Icon, Tooltip } from 'antd';
+import numeral from 'numeral';
+import { userDateAnalysis, orderDateAnalysis, priceDateAnalysis, goodsGroupByCategory } from '@/services/Analysis';
+import 'ant-design-pro/dist/ant-design-pro.css';
 
-// class EditableCell extends React.Component {
-//     getInput = () => {
-//         if (this.props.inputType === 'number') { return <InputNumber />; }
-//         return <Input />;
-//     };
-//     render() {
-//         const {
-//             editing, dataIndex, title, inputType, record, index, ...restProps
-//         } = this.props;
-//         return (
-//             <EditableContext.Consumer>
-//                 {(form) => {
-//                     const { getFieldDecorator } = form;
-//                     return (
-//                         <td {...restProps}>
-//                             {editing ? (
-//                                 <FormItem style={{ margin: 0 }}>
-//                                     {getFieldDecorator(dataIndex, {
-//                                         rules: [{
-//                                             required: true,
-//                                             message: `Please Input ${title}!`,
-//                                         }],
-//                                         initialValue: record[dataIndex],
-//                                     })(this.getInput())}
-//                                 </FormItem>
-//                             ) : restProps.children}
-//                         </td>
-//                     );
-//                 }}
-//             </EditableContext.Consumer>
-//         );
-//     }
-// }
+const salesData = [];
+for (let i = 0; i < 12; i += 1) {
+    salesData.push({
+        x: `${i + 1}月`,
+        y: Math.floor(Math.random() * 1000) + 200,
+    });
+}
 
-class CategoryManager extends React.Component {
-
-    componentWillUpdate() {
-        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
-    }
+class dateAnalysis extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
-            editingKey: '',
-            loading: false,
-            visible: false,
-            addInput: ''
-        };
-        this.columns = [
-            { title: '类别ID', dataIndex: 'id', width: '25%', },
-            { title: '类别名', dataIndex: 'categoryName', width: '25%', editable: true, },
-            { title: '更新时间', dataIndex: 'dateUpdate', width: '25%', },
-            {
-                title: '操作',
-                dataIndex: 'operation',
-                render: (text, record) => {
-                    const { editingKey } = this.state;
-                    const editable = this.isEditing(record);
-                    return (
-                        <div>
-                            {editable ? (
-                                <span>
-                                    <EditableContext.Consumer>
-                                        {form => (
-                                            <Button
-                                                type='primary'
-                                                onClick={() => this.save(form, record.key)}
-                                                style={{ marginRight: 8 }}>保存</Button>
-                                        )}
-                                    </EditableContext.Consumer>
-                                    <Popconfirm
-                                        title="确认取消?"
-                                        onConfirm={() => this.cancel(record.key)}>
-                                        <Button type='danger'>取消</Button>
-                                    </Popconfirm>
-                                </span>
-                            ) : (
-                                    <span>
-                                        <Button type='primary' disabled={editingKey !== ''} onClick={() => this.edit(record.key)}>编辑</Button>&nbsp;&nbsp;
-                                        <Popconfirm
-                                            title="此操作不可逆，确认删除?"
-                                            onConfirm={() => this.delete(record.key)}>
-                                            <Button type='danger'>删除</Button>
-                                        </Popconfirm>
-                                    </span>
-                                )}
-                        </div>
-                    );
-                },
+            userCountData: {
+                countUser: 0,
+                countOnlineWeek: 0,
+                onlinePercent: 0,
             },
-        ];
+            orderCountData: {
+                countGoodsOrder: 0,
+                countOrderCreateMonth: 0,
+                xyDataList: [],
+            },
+            priceData: {
+                totalSellPrice: 0,
+                monthSellPrice: 0,
+                xyDataList: [],
+            },
+            goodsGroupByCategory: {
+                xyDataList: [],
+            },
+            loading: {
+                userCountDataLoading: false,
+                orderCountDataLoading: false,
+                priceDataLoading: false,
+                goodsGroupByCategoryList: false,
+            },
+        };
+
+
+        this.getUserCountData();
+        this.getOrderCountData();
+        this.getPriceData();
+        this.getGoodsGroupByCategoryList();
     }
 
-    componentDidMount() { this.changeCategory() }
-
-    changeCategory() {
-        this.setState({
-            loading: true
-        })
-        getCategory().then((result) => {
-            this.changeLoading();
-            let data = [];
-            result.data.map((c) => {
-                data.push({
-                    key: c.id,
-                    id: c.id,
-                    categoryName: c.categoryName,
-                    dateUpdate: c.dateUpdate,
-                });
-                return null;
-            })
+    getUserCountData() {
+        userDateAnalysis().then((result) => {
             this.setState({
-                data: data,
-            })
-            console.log(result)
-        })
-    }
-    isEditing = record => record.key === this.state.editingKey;
-    cancel = () => { this.setState({ editingKey: '' }); };
+                userCountData: result.data,
+            });
+        });
+    };
 
-    delete = (key) => {
-        this.changeLoading()
-        removeCategory(key).then((result) => {
-            if (result.code === '200') {
-                message.success(result.msg);
-                this.changeCategory()
-            } else {
-                message.error(result.msg)
-                this.changeCategory()
-            }
-        })
-    }
-
-    changeLoading() { this.setState({ loading: this.state.loading ? false : true }) }
-
-    save(form, key) {
-        form.validateFields((error, row) => {
-            if (error) {
-                return;
-            }
-            this.onUpdateCategory({ ...row, id: key });
-            const newData = [...this.state.data];
-            const index = newData.findIndex(item => key === item.key);
-            if (index > -1) {
-                const item = newData[index];
-                newData.splice(index, 1, {
-                    ...item,
-                    ...row,
-                });
-                this.setState({ data: newData, editingKey: '' });
-            } else {
-                newData.push(row);
-                this.setState({ data: newData, editingKey: '' });
-            }
+    getOrderCountData() {
+        orderDateAnalysis().then((result) => {
+            this.setState({
+                orderCountData: result.data,
+            });
         });
     }
 
-    onUpdateCategory(category) {
-        category = {
-            id: category.id,
-            categoryName: category.categoryName
-        }
-        this.setState({
-            loading: true
-        })
-        updateCategory(category).then((result) => {
-            if (result.code === '200') {
-                message.success(result.msg);
-            } else {
-                message.error(result.msg)
-            }
+    getPriceData() {
+        priceDateAnalysis().then((result) => {
             this.setState({
-                loading: false
-            })
-        })
+                priceData: result.data,
+            });
+        });
     }
 
-    edit(key) { this.setState({ editingKey: key }); }
-    showModal = () => { this.setState({ visible: true, }); }
-    handleCancel = (e) => { console.log(e); this.setState({ visible: false, }); }
-    addInputChange(e) { this.setState({ addInput: e.target.value }) }
-    handleOk = (e) => {
-        this.changeLoading();
-        addCategory({ categoryName: this.state.addInput }).then((result) => {
-            this.changeLoading();
-            if (result.success === true) {
-                message.success(result.msg);
-                this.changeCategory()
-            } else { message.error(result.msg); }
+    getGoodsGroupByCategoryList() {
+        goodsGroupByCategory().then((result) => {
+            this.setState({
+                goodsGroupByCategory: result.data,
+            });
         });
-        this.setState({ visible: false, });
     }
+
 
     render() {
-        // const components = {
-        //     body: {
-        //         cell: EditableCell,
-        //     },
-        // };
 
-        // const columns = this.columns.map((col) => {
-        //     if (!col.editable) {
-        //         return col;
-        //     }
-        //     return {
-        //         ...col,
-        //         onCell: record => ({
-        //             record,
-        //             inputType: 'text',
-        //             dataIndex: col.dataIndex,
-        //             title: col.title,
-        //             editing: this.isEditing(record),
-        //         }),
-        //     };
-        // });
         return (
             <React.Fragment>
-                还没写  
+                <div>
+                    <Row gutter={30} style={{ marginTop: 10 }}>
+                        <Col span={8}>
+                            <ChartCard
+                                title="用户总量"
+                                action={
+                                    <Tooltip title="用户总量">
+                                        <Icon type="info-circle-o"/>
+                                    </Tooltip>
+                                }
+                                total={numeral(this.state.userCountData.countUser).format('0,0')}
+                                footer={<Field label="周登录用户"
+                                               value={numeral(this.state.userCountData.countOnlineWeek).format('0,0')}/>}
+                                contentHeight={46}
+                            >
+                                周在线比例: {this.state.userCountData.onlinePercent + '%'}
+                                <MiniProgress percent={this.state.userCountData.onlinePercent} strokeWidth={8}
+                                              target={20}/>
+                            </ChartCard>
+                        </Col>
+                        <Col span={8}>
+                            <ChartCard
+                                title="总订单数"
+                                action={
+                                    <Tooltip title="总订单数">
+                                        <Icon type="info-circle-o"/>
+                                    </Tooltip>
+                                }
+                                total={numeral(this.state.orderCountData.countGoodsOrder).format('0,0')}
+                                footer={<Field label="月订单数"
+                                               value={numeral(this.state.orderCountData.countOrderCreateMonth).format('0,0')}/>}
+                                contentHeight={46}
+                            >
+                                <MiniBar height={46} data={this.state.orderCountData.xyDataList}/>
+                            </ChartCard>
+                        </Col>
+                        <Col span={8}>
+                            <ChartCard
+                                title="销售额"
+                                action={
+                                    <Tooltip title="销售额">
+                                        <Icon type="info-circle-o"/>
+                                    </Tooltip>
+                                }
+                                total={numeral(this.state.priceData.totalSellPrice).format('0,0')}
+                                footer={
+                                    <Field label="月销售额"
+                                           value={numeral(this.state.priceData.monthSellPrice).format('0,0')}/>
+                                }
+                                contentHeight={46}
+                            >
+                                <MiniArea line height={46} data={this.state.priceData.xyDataList}/>
+                            </ChartCard>
+                        </Col>
+                    </Row>
+                </div>
 
+                <div style={{ paddingTop: 20 }}>
+                    <Row gutter={30}>
+                        <Col span={8}>
+                            <ChartCard
+                                title="商品分类"
+                                style={{}}
+                            >
+                                <Pie
+                                    hasLegend
+                                    title="商品分类"
+                                    subTitle="商品总数"
+                                    total={() => (
+                                        <span
+                                            dangerouslySetInnerHTML={{
+                                                __html: (this.state.goodsGroupByCategory.xyDataList.reduce((pre, now) => now.y + pre, 0)),
+                                            }}
+                                        />
+                                    )}
+                                    data={this.state.goodsGroupByCategory.xyDataList}
+                                    valueFormat={val => <span dangerouslySetInnerHTML={{ __html: (val) }}/>}
+                                    height={110}
+                                />
+                            </ChartCard>
+                        </Col>
+                        <Col span={16}>
+                            <ChartCard>
+                                <Bar
+                                    // padding={[4,4,4,4]}
+                                    height={249}
+                                    title="销售额趋势"
+                                    data={this.state.priceData.xyDataList}/>
+                            </ChartCard>
+                        </Col>
+                    </Row>
+                </div>
             </React.Fragment>
         );
     }
 }
 
-const CategoryManagerEditableFormTable = Form.create()(CategoryManager);
-
-export default CategoryManagerEditableFormTable;
+export default dateAnalysis;

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Table, Card, Row, Icon, Col, Divider, Button, Input, Select, Modal, Radio, message,
+    Table, Card, Row, Button, Input, Select, Modal, Radio, message,
 } from 'antd';
 import { getList, ship, changeExpressDeliveryStatus } from '@/services/ExpressService';
 
@@ -25,14 +25,14 @@ class CategoryManager extends React.Component {
 
             pagination: {
                 current: 1,
-                pageSize: 5,
+                pageSize: 8,
                 total: 0,
             },
             expressDeliveryQO: {
                 orderId: '',
                 deliveryStatus: -1,
                 expressCode: '',
-                expressCarrier: '',
+                expressCarrier: -1,
             },
         };
         this.columns = [
@@ -46,8 +46,18 @@ class CategoryManager extends React.Component {
             { title: '到货时间', dataIndex: 'dateExpressEnd', width: '10%' },
             {
                 title: '物流状态', dataIndex: 'changeStatus', width: '10%', render: (text, record) => {
-                    return (<Button disabled={record.deliveryStatus === '已送达'}
-                                    onClick={() => this.showModal(record.id, record.deliveryStatus)}>修改</Button>);
+                    if (record.deliveryStatus === '待发货') {
+                        return (<Button onClick={() => this.showModal(record.id, record.deliveryStatus)}>发货</Button>);
+                    }
+                    if (record.deliveryStatus === '已发货') {
+                        return (<Button onClick={() => this.showModal(record.id, record.deliveryStatus)}>揽件</Button>);
+                    }
+                    if (record.deliveryStatus === '配送中') {
+                        return (<Button onClick={() => this.showModal(record.id, record.deliveryStatus)}>确认送达</Button>);
+                    }
+                    if (record.deliveryStatus === '已送达') {
+                        return (<p>已送达</p>);
+                    }
                 },
             },
         ];
@@ -143,6 +153,22 @@ class CategoryManager extends React.Component {
         });
     }
 
+    statusChange = (value) => {
+        this.setState({
+            expressDeliveryQO: {
+                ...this.state.expressDeliveryQO, deliveryStatus: value,
+            },
+        });
+    };
+
+    carrierChange = (value) => {
+        this.setState({
+            expressDeliveryQO: {
+                ...this.state.expressDeliveryQO, expressCarrier: value,
+            },
+        });
+    };
+
     showModal = (id, status) => {
         this.setState({
             visible: true,
@@ -160,6 +186,14 @@ class CategoryManager extends React.Component {
                 expressCode: this.state.expressCode,
                 expressCarrier: this.state.expressCarrier,
             };
+            if (this.state.expressCarrier === -1){
+                message.error("请选择快递承运商");
+                return;
+            }
+            if (this.state.expressCode === '') {
+                message.error("请输入快递单号")
+                return;
+            }
             ship(shipQO).then((result) => {
                 this.showMessage(result);
             });
@@ -220,15 +254,24 @@ class CategoryManager extends React.Component {
                 <div style={{ background: '#fff' }}>
                     <div style={{ padding: 24 }}>
                         <div style={{ paddingBottom: 24 }}>
-                            <Input style={{ width: 200 }} placeholder="订单编号" onChange={e => this.orderKeywordChange(e)}
+                            <Input style={{ width: 150 }} placeholder="订单编号" onChange={e => this.orderKeywordChange(e)}
                                    allowClear/>&nbsp;&nbsp;&nbsp;
-                            <Input style={{ width: 200 }} placeholder="快递单号"
+                            <Input style={{ width: 150 }} placeholder="快递单号"
                                    onChange={e => this.expressKeywordChange(e)}
                                    allowClear/>&nbsp;&nbsp;&nbsp;
-                            <Select style={{ width: 200 }} placeholder='请选择性别' allowClear
-                            >
-                                <Option value="1">男</Option>
-                                <Option value="0">女</Option>
+                            <Select style={{ width: 100 }} placeholder='状态' allowClear
+                                    onChange={this.statusChange}>
+                                <Option value="0" key={0}>待发货</Option>
+                                <Option value="1" key={1}>已发货</Option>
+                                <Option value="2" key={2}>配送中</Option>
+                                <Option value="3" key={3}>已送达</Option>
+                            </Select>&nbsp;&nbsp;&nbsp;
+                            <Select style={{ width: 100 }} placeholder='承运商' allowClear
+                                    onChange={this.carrierChange}>
+                                <Option value="1" key={1}>顺丰</Option>
+                                <Option value="2" key={2}>圆通</Option>
+                                <Option value="3" key={3}>申通</Option>
+                                <Option value="4" key={4}>EMS</Option>
                             </Select>&nbsp;&nbsp;&nbsp;
                             <Button type='primary' onClick={() => this.reloadList()}>搜索</Button>
                         </div>

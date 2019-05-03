@@ -48,23 +48,36 @@ class mall extends React.Component {
         this.props.onDidMountGetCategory();
     }
 
+    static GetUrlByParamName(name) {
+        let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+        let URL = decodeURI(window.location.search);
+        let r = URL.substr(1).match(reg);
+        if (r != null) {
+            //decodeURI() 函数可对 encodeURI() 函数编码过的 URI 进行解码
+            return decodeURI(r[2]);
+        }
+        return null;
+    };
+
+
     constructor(props) {
         super(props);
         this.state = {
             pageNum: 1,
-            pageSize: 4,
+            pageSize: 12,
             selectedTags: [],
             category: 0,
+            keyword: mall.GetUrlByParamName('keyword'),
         };
         this.getList();
     }
 
     getList() {
-
         let goodsListQO = {
             pageNum: this.state.pageNum,
             pageSize: this.state.pageSize,
             category: this.state.category,
+            keyword: this.state.keyword,
         };
         console.log('----goodsListQO----');
         console.log(goodsListQO);

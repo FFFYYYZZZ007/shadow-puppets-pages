@@ -16,7 +16,8 @@
     "react-cookie": "^3.1.2",
     "react-dom": "^16.7.0",
     "umi-plugin-nprogress": "^1.1.6",
-      "moment": "latest"
+      "moment": "latest",
+      "numeral": "latest"
   },
   "devDependencies": {
     "babel-eslint": "^9.0.0",

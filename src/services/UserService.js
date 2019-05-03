@@ -3,7 +3,7 @@ import request from '../util/request';
 export function getMessage() {
     let url = 'api/user/get';
     let options = {
-        method: 'get'
+        method: 'get',
     };
     return request(url, options);
 }
@@ -16,12 +16,12 @@ export function register(user) {
         method: 'post',
         body: user,
         headers: { 'Content-type': 'application/json; charset=utf-8' },
-    }
+    };
     return request(url, options);
 }
 
 export function login(user) {
-    console.log(localStorage.getItem("token"));
+    console.log(localStorage.getItem('token'));
     user = JSON.stringify(user);
     let url = 'api/user/login';
     let options = {
@@ -38,12 +38,12 @@ export function sendVerificationCode(tel) {
     let url = '/api/user/code?tel=' + tel;
     let options = {
         method: 'get',
-    }
+    };
     return request(url, options);
 }
 
 export function getUserManagerList(userListQO) {
-    let url = '/api/user/manager/list'
+    let url = '/api/user/manager/list';
     userListQO = JSON.stringify(userListQO);
     let options = {
         method: 'post',
@@ -56,7 +56,7 @@ export function getUserManagerList(userListQO) {
 }
 
 export function updateUser(user) {
-    let url = '/api/user/update'
+    let url = '/api/user/update';
     user = JSON.stringify(user);
     let options = {
         method: 'post',
@@ -68,11 +68,39 @@ export function updateUser(user) {
     return request(url, options);
 }
 
-export function deleteUser(id){
-    let url = '/api/user/manager/remove?userId='+id;
+export function changePassword(userPassword) {
+    let url = '/api/user/changePassword';
+    userPassword = JSON.stringify(userPassword);
     let options = {
-        method: 'post'
+        method: 'post',
+        body: userPassword,
+        headers: {
+            'Content-type': 'application/json; charset=utf-8',
+        },
     };
     return request(url, options);
 }
 
+export function deleteUser(id) {
+    let url = '/api/user/manager/remove?userId=' + id;
+    let options = {
+        method: 'post',
+    };
+    return request(url, options);
+}
+
+export function getUserInfo() {
+    let url = '/api/user/info';
+    let options = {
+        method: 'post',
+    };
+    return request(url, options);
+}
+
+export function getHeader() {
+    let url = '/api/user/manager/header';
+    let options = {
+        method: 'get',
+    };
+    return request(url, options);
+}
