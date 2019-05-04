@@ -1,14 +1,12 @@
 import React from 'react';
 import {
-    Comment, Tooltip, Avatar, Spin, Divider,
+    Comment, Tooltip, Avatar, Spin, Divider, Pagination, Rate,
 } from 'antd';
 import moment from 'moment';
 import { getCommentList } from '@/services/CommentService';
 
 class GoodsComment extends React.Component {
     state = {
-        likes: 0,
-        action: null,
         commentList: [],
         loading: true,
         commentQO: {
@@ -34,10 +32,23 @@ class GoodsComment extends React.Component {
             this.setState({
                 loading: false,
                 commentList: result.data.list,
-                total: result.data.total,
+                commentQO: {
+                    ...this.state.commentQO,total:result.data.total
+                },
             });
         });
     }
+
+    //页码改变调用方法
+    pageChange = (page) => {
+        console.log(page);
+        this.setState({
+            commentQO: {
+                ...this.state.commentQO,pageNum:page
+            },
+        }, () => this.reloadCommentList());
+
+    };
 
     render() {
         return (
@@ -57,7 +68,10 @@ class GoodsComment extends React.Component {
 
                                     )}
                                     content={(
-                                        <p>{comment.content}</p>
+                                        <div>
+                                            <p>{comment.content}</p>
+                                            <Rate disabled defaultValue={comment.starLevel} />
+                                        </div>
                                     )}
                                     datetime={(
                                         <Tooltip title={moment().format('YYYY-MM-DD HH:mm:SS')}>
@@ -69,6 +83,15 @@ class GoodsComment extends React.Component {
                             </div>
                         );
                     })}
+                    <center>
+                        <Pagination
+                            size="small"
+                            hideOnSinglePage={true}
+                            pageSize={this.state.commentQO.pageSize}
+                            defaultCurrent={1}
+                            total={this.state.commentQO.total}
+                            onChange={this.pageChange}/>
+                    </center>
                 </Spin>
             </div>
         );

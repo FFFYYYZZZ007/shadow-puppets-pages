@@ -52,6 +52,7 @@ class goodsDetails extends React.Component {
                                 price={goodsDetails.price}
                                 maxNum={goodsDetails.quantity}
                                 imageUrl={goodsDetails.mainImageUrl}
+                                imagesUrls={goodsDetails.imagesUrls.split(',')}
                             />
                             <Row style={{ padding: 50 }}>
                                 <Col span={5} >

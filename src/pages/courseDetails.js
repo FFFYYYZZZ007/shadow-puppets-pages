@@ -1,9 +1,25 @@
 import React from 'react';
 import { createNewCourseOrder, getCourseVO, getRecommendCourseList } from '@/services/CourseService';
-import { Avatar, Button, Card, Col, Comment, Divider, Icon, message, Row, Spin, Tabs, Tooltip } from 'antd';
+import {
+    Avatar,
+    Button,
+    Card,
+    Col,
+    Comment,
+    Divider,
+    Icon,
+    message,
+    Pagination,
+    Rate,
+    Row,
+    Spin,
+    Tabs,
+    Tooltip,
+} from 'antd';
 import styles from './css/courseDetails.css';
 import moment from 'moment';
 import router from 'umi/router';
+import { getCommentList } from '@/services/CourseCommentService';
 
 const TabPane = Tabs.TabPane;
 
@@ -32,6 +48,15 @@ class courseDetails extends React.Component {
         spinning: false,
         tabKey: '1',
         recommend: [],
+
+        //评论相关
+        commentList: [],
+        loading: true,
+        commentQO: {
+            pageNum: 1,
+            pageSize: 5,
+            total: 0,
+        },
     };
 
     getCourseDetail(id) {
@@ -65,6 +90,9 @@ class courseDetails extends React.Component {
         this.setState({
             tabKey: key,
         });
+        if (key === '2') {
+            this.reloadCommentList();
+        }
     };
 
 
@@ -95,6 +123,24 @@ class courseDetails extends React.Component {
         });
     }
 
+    reloadCommentList() {
+        let commentQO = {
+            pageNum: this.state.commentQO.pageNum,
+            pageSize: this.state.commentQO.pageSize,
+            goodsId: this.state.course.id,
+        };
+        getCommentList(commentQO).then((result) => {
+            console.log(result);
+            this.setState({
+                loading: false,
+                commentList: result.data.list,
+                commentQO: {
+                    ...this.state.commentQO,total:result.data.total
+                },
+            });
+        });
+    }
+
 
     showMessage(result) {
         if (result.success === true) {
@@ -103,6 +149,16 @@ class courseDetails extends React.Component {
             message.error(result.msg, 1);
         }
     }
+    //页码改变调用方法
+    pageChange = (page) => {
+        console.log(page);
+        this.setState({
+            commentQO: {
+                ...this.state.commentQO,pageNum:page
+            },
+        }, () => this.reloadCommentList());
+
+    };
 
     render() {
         return (
@@ -166,48 +222,48 @@ class courseDetails extends React.Component {
                                     </div>
                                     :
                                     <div className={styles.comment}>
-                                        <Comment
+                                        <Spin spinning={this.state.loading}>
+                                            {this.state.commentList.length !== 0 ?
+                                                this.state.commentList.map((comment) => {
+                                                    return (
+                                                        <div key={'comment_' + comment.id}>
+                                                            <Comment
+                                                                author={comment.userName}
+                                                                avatar={(
+                                                                    <Avatar style={{
+                                                                        color: '#f56a00',
+                                                                        backgroundColor: '#fde3cf',
+                                                                    }}>{comment.userName}</Avatar>
 
-                                            author={<p>Han Solo</p>}
-                                            avatar={(
-                                                <Avatar
-                                                    src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                                                    alt="Han Solo"
-                                                />
-                                            )}
-                                            content={(
-                                                <p>We supply a series of design principles, practical patterns and high
-                                                    quality design resources (Sketch and Axure), to help people create
-                                                    their product prototypes beautifully and efficiently.</p>
-                                            )}
-                                            datetime={(
-                                                <Tooltip title={moment().format('YYYY-MM-DD HH:mm:ss')}>
-                                                    <span>{moment().fromNow()}</span>
-                                                </Tooltip>
-                                            )}
-                                        />
-                                        <Divider/>
-                                        <Comment
-
-                                            author={<p>Han Solo</p>}
-                                            avatar={(
-                                                <Avatar
-                                                    src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                                                    alt="Han Solo"
-                                                />
-                                            )}
-                                            content={(
-                                                <p>We supply a series of design principles, practical patterns and high
-                                                    quality design resources (Sketch and Axure), to help people create
-                                                    their product prototypes beautifully and efficiently.</p>
-                                            )}
-                                            datetime={(
-                                                <Tooltip title={moment().format('YYYY-MM-DD HH:mm:ss')}>
-                                                    <span>{moment().fromNow()}</span>
-                                                </Tooltip>
-                                            )}
-                                        />
-
+                                                                )}
+                                                                content={(
+                                                                    <div>
+                                                                        <p>{comment.content}</p>
+                                                                        <Rate disabled defaultValue={comment.starLevel} />
+                                                                    </div>
+                                                                )}
+                                                                datetime={(
+                                                                    <Tooltip
+                                                                        title={moment().format('YYYY-MM-DD HH:mm:SS')}>
+                                                                        <span>{moment(comment.dateCreate, 'YYYY-MM-DD HH:mm:SS').fromNow()}</span>
+                                                                    </Tooltip>
+                                                                )}
+                                                            />
+                                                            <Divider/>
+                                                        </div>
+                                                    );
+                                                })
+                                                : <center style={{fontSize:20}}>暂无评论</center>}
+                                        </Spin>
+                                        <center>
+                                            <Pagination
+                                                size="small"
+                                                hideOnSinglePage={true}
+                                                pageSize={this.state.commentQO.pageSize}
+                                                defaultCurrent={1}
+                                                total={this.state.commentQO.total}
+                                                onChange={this.pageChange}/>
+                                        </center>
                                     </div>
                                 }
 
@@ -219,7 +275,7 @@ class courseDetails extends React.Component {
                                         {this.state.recommend.map((course) => {
                                             return (
                                                 <div key={course.id}>
-                                                    <Card hoverable={true} bordered={false} style={{height:100}}>
+                                                    <Card hoverable={true} bordered={false} style={{ height: 100 }}>
                                                         <Row>
                                                             <Col span={6}>
                                                                 <img onClick={() => this.jump2CourseDetail(course.id)}

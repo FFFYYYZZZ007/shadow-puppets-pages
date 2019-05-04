@@ -3,6 +3,7 @@ import styles from './css/pay.css';
 import { Row, Col, Divider, Button, message, Modal, Drawer, Rate, Input } from 'antd';
 import { closeOrder, getOrderInfo, getPayUrl, checkTradeStatus, confirmStudy } from '@/services/CourseService';
 import router from 'umi/router';
+import { addComment } from '@/services/CourseCommentService';
 
 const { TextArea } = Input;
 
@@ -27,7 +28,7 @@ class CourseOrderInfo extends React.Component {
         visible: false,
         drawerVisible: false,
         commentVisible: false,
-        content: '',
+        comment: '',
         starLevel: 0,
     };
 
@@ -143,19 +144,19 @@ class CourseOrderInfo extends React.Component {
             starLevel: this.state.starLevel,
         };
         console.log(comment);
-        // addComment(comment).then((result) => {
-        //     if (result.success === true) {
-        //         message.success(result.msg);
-        //         this.setState({
-        //             visible2: false,
-        //         }, () => {
-        //             this.props.onDidMount(this.state.id);
-        //         });
-        //     } else {
-        //         message.error(result.msg);
-        //     }
-        //
-        // });
+        addComment(comment).then((result) => {
+            if (result.success === true) {
+                message.success(result.msg);
+                this.setState({
+                    commentVisible: false,
+                }, () => {
+                    this.getOrder(this.state.order.id);
+                });
+            } else {
+                message.error(result.msg);
+            }
+
+        });
     };
 
     //取消展示评论框
@@ -309,9 +310,9 @@ class CourseOrderInfo extends React.Component {
                     onClose={this.drawerClose}
                     visible={this.state.drawerVisible}
                 >
-                    <p>手机：{this.state.order.teacherName}</p>
-                    <p>姓名：{this.state.order.teacherName}</p>
-                    <p>地点：{this.state.order.coursePlace}</p>
+                    <p>手机：{this.state.order.courseVO.teacherName}</p>
+                    <p>姓名：{this.state.order.courseVO.teacherName}</p>
+                    <p>地点：{this.state.order.courseVO.coursePlace}</p>
                 </Drawer>
                 <Modal
                     title="添加评价"

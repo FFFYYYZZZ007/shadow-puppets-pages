@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../pages/css/order.css';
-import { Row, Col, Button, message, InputNumber } from 'antd';
+import { Row, Col, Button, message, InputNumber, Carousel } from 'antd';
 import { addShoppingCart } from '../services/ShoppingCartService';
 import { addNewGoodsOrder } from '../services/GoodsOrderService';
 import router from 'umi/router';
@@ -70,8 +70,27 @@ class GoodsInfo extends React.Component {
             <div>
                 <Row>
                     <Col span={12} align='middle'>
-                        <img alt='' className={styles.card} style={{ width: 450, height: 350 }}
-                             src={this.props.imageUrl}/>
+                        <Carousel autoplay>
+                            <div>
+                                <img alt='' className={styles.card} style={{ width: 450, height: 350 }}
+                                     src={this.props.imageUrl}/>
+                            </div>
+                            {this.props.imagesUrls !== undefined && this.props.imagesUrls.length > 0 ?
+                                <div>
+                                    <img alt='' className={styles.card} style={{ width: 450, height: 350 }}
+                                         src={this.props.imagesUrls[0]}/>
+                                </div>
+                                : null}
+                            {this.props.imagesUrls !== undefined && this.props.imagesUrls.length > 1 ?
+
+                                <div>
+                                    <img alt='' className={styles.card} style={{ width: 450, height: 350 }}
+                                         src={this.props.imagesUrls[1]}/>
+                                </div>
+                                : null}
+
+                        </Carousel>
+
                     </Col>
                     <Col span={12}>
 

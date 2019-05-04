@@ -17,6 +17,7 @@ import {
 import { closeOrder, confirmStudy, getCourseOrderList } from '@/services/CourseService';
 import styles from '@/pages/css/order.css';
 import router from 'umi/router';
+import { addComment } from '@/services/CourseCommentService';
 
 const { TextArea } = Input;
 const TabPane = Tabs.TabPane;
@@ -37,7 +38,8 @@ class courseOrder extends React.Component {
             drawerVisible: false,
             commentVisible: false,
 
-            content: '',
+            orderId:'',
+            comment: '',
             starLevel: 0,
         };
     }
@@ -114,18 +116,19 @@ class courseOrder extends React.Component {
                                 :
                                 this.state.orderList.map((order) => {
                                     return (
-                                        <div key={order.id}>
+                                        <div key={'order'+order.id}>
                                             <Card className={styles.card}
                                                   hoverable={true}
                                                   title={'订单编号：' + order.id}
+                                                  key={'order1'+order.id}
                                                   extra={
                                                       [
-                                                          <b style={{ fontSize: 20 }}>{order.courseOrderStatus}&nbsp;&nbsp;&nbsp;</b>,
-                                                          <Button onClick={() => {
+                                                          <b style={{ fontSize: 20 }} key={'bKey'}>{order.courseOrderStatus}&nbsp;&nbsp;&nbsp;</b>,
+                                                          <Button key={'buttonKey'} onClick={() => {
                                                               router.push({
                                                                   pathname: 'courseDetails',
                                                                   query: {
-                                                                      courseId: this.state.order.courseVO.id,
+                                                                      courseId: order.courseVO.id,
                                                                   },
                                                               });
                                                           }}>商品详情</Button>,
@@ -162,8 +165,8 @@ class courseOrder extends React.Component {
                                                     </Row>
                                                     <Divider/>
                                                 </div>
-                                                <font
-                                                    style={{ fontSize: 20 }}>订单总价：&nbsp;&nbsp;{order.dealPrice} 元</font>
+                                                <font key={'order3'+order.id}
+                                                      style={{ fontSize: 20 }}>订单总价：&nbsp;&nbsp;{order.dealPrice} 元</font>
                                                 {order.courseOrderStatus === '待付款' ?
                                                     <div style={{ float: 'right' }}>
                                                         <Button type={'primary'}
@@ -212,6 +215,7 @@ class courseOrder extends React.Component {
                                                         <Button type={'primary'} onClick={() => {
                                                             this.setState({
                                                                 commentVisible: true,
+                                                                orderId:order.id
                                                             });
                                                         }}>立即评价</Button>
                                                     </div>
@@ -225,8 +229,8 @@ class courseOrder extends React.Component {
                                                     </div>
                                                     : null}
                                             </Card>
-                                            <Divider/>
-                                            <div>
+                                            <Divider />
+                                            <div >
                                                 <Drawer
                                                     title="联系方式"
                                                     placement="right"
@@ -236,50 +240,14 @@ class courseOrder extends React.Component {
                                                     }}
                                                     visible={this.state.drawerVisible}
                                                 >
-                                                    <p>手机：{order.teacherName}</p>
-                                                    <p>姓名：{order.teacherName}</p>
-                                                    <p>地点：{order.coursePlace}</p>
+                                                    <p>手机：{order.courseVO.teacherName}</p>
+                                                    <p>姓名：{order.courseVO.teacherName}</p>
+                                                    <p>地点：{order.courseVO.coursePlace}</p>
                                                 </Drawer>
-                                                <Modal
-                                                    title="添加评价"
-                                                    visible={this.state.commentVisible}
-                                                    onOk={() => {
-                                                        let comment = {
-                                                            content: this.state.comment,
-                                                            orderId: order.id,
-                                                            starLevel: this.state.starLevel,
-                                                        };
-                                                        console.log(comment);
-                                                        //add评论
-                                                    }}
-                                                    onCancel={() => {
-                                                        this.setState({
-                                                            commentVisible: false,
-                                                            comment: '',
-                                                            starLevel: 0,
-                                                        });
-                                                    }}
-                                                    destroyOnClose
-                                                >
-                                                    <TextArea rows={4}
-                                                              defaultValue={this.state.comment}
-                                                              onChange={(e) => {
-                                                                  this.setState({
-                                                                      comment: e.target.value,
-                                                                  });
-                                                              }}/>
-                                                    您对这次课程的满意程度：
-                                                    <Rate defaultValue={this.state.starLevel}
-                                                          onChange={(value) => {
-                                                              this.setState({
-                                                                  starLevel: value,
-                                                              });
-                                                          }}/>
-                                                </Modal>
                                             </div>
+
                                         </div>
                                     );
-
                                 })
                             }
                         </Spin>
@@ -295,6 +263,59 @@ class courseOrder extends React.Component {
                             onChange={this.pageChange}/>
                     </Col>
                 </Row>
+                <div>
+                    <Modal
+                        title="添加评价"
+                        okText='评价'
+                        cancelText='取消'
+                        destroyOnClose
+                        visible={this.state.commentVisible}
+                        onOk={() => {
+                            let comment = {
+                                content: this.state.comment,
+                                orderId: this.state.orderId,
+                                starLevel: this.state.starLevel,
+                            };
+                            console.log(comment);
+                            //add评论
+                            addComment(comment).then((result) => {
+                                if (result.success === true) {
+                                    message.success(result.msg);
+                                    this.setState({
+                                        commentVisible: false,
+                                    }, () => {
+                                        this.reloadOrder();
+                                    });
+                                } else {
+                                    message.error(result.msg);
+                                }
+
+                            });
+                        }}
+                        onCancel={() => {
+                            this.setState({
+                                commentVisible: false,
+                                comment: '',
+                                starLevel: 0,
+                            });
+                        }}
+                    >
+                        <TextArea rows={4}
+                                  defaultValue={this.state.comment}
+                                  onChange={(e) => {
+                                      this.setState({
+                                          comment: e.target.value,
+                                      });
+                                  }}/>
+                        您对这次课程的满意程度：
+                        <Rate defaultValue={this.state.starLevel}
+                              onChange={(value) => {
+                                  this.setState({
+                                      starLevel: value,
+                                  });
+                              }}/>
+                    </Modal>
+                </div>
             </div>
         );
     }
