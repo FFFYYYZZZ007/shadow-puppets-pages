@@ -19,7 +19,7 @@ class GoodsDetail extends React.Component {
                     <Col span={22}>
                         <Tabs onChange={callback} type="card">
                             <TabPane tab="商品详情" key="1">
-                                <p>商品简介：{this.props.introduction}</p>
+                                {/*<p>商品简介：{this.props.introduction}</p>*/}
                                 {this.props.imagesUrls.split(',').map(url => {
                                     return (
                                         <img alt=''

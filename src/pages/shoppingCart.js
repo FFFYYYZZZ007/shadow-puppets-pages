@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button, Popconfirm, message } from 'antd';
+import { Table, Button, Popconfirm, message, Tooltip } from 'antd';
 import styles from './css/shoppingCart.css';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -58,11 +58,19 @@ class ShoppingCart extends React.Component {
     }, {
         title: '操作',
         render: (text, record) =>
-            <Popconfirm title="确定删除?" onConfirm={() => {
-                this.handleDelete(record.key);
-            }}>
-                <Button type="danger" icon="delete" shape='circle'/>
-            </Popconfirm>,
+            <div>
+                <Popconfirm title="确定删除?" onConfirm={() => {
+                    this.handleDelete(record.key);
+                }}>
+                    <Button type="danger" icon="delete" shape='circle'/>
+                </Popconfirm>
+                &nbsp;&nbsp;&nbsp;
+                <Tooltip title={'商品详情'}>
+                    <Button icon="info" shape='circle' onClick={() => {
+                        router.push('/goodsDetails?' + record.goodsId);
+                    }}/>
+                </Tooltip>
+            </div>,
     }];
 
 
@@ -86,10 +94,10 @@ class ShoppingCart extends React.Component {
 
     showMessage(result) {
         if (result.success === true) {
-            message.success(result.msg,1);
+            message.success(result.msg, 1);
             this.props.onDidMount();
         } else {
-            message.error(result.msg,1);
+            message.error(result.msg, 1);
         }
     }
 

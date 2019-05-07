@@ -25,9 +25,9 @@ class GoodsInfo extends React.Component {
         };
         addShoppingCart(cart).then((result) => {
             if (result.success === true) {
-                message.success(result.msg, 10);
+                message.success(result.msg, 1);
             } else {
-                message.error(result.msg, 10);
+                message.error(result.msg, 1);
             }
         });
     };
@@ -72,19 +72,19 @@ class GoodsInfo extends React.Component {
                     <Col span={12} align='middle'>
                         <Carousel autoplay>
                             <div>
-                                <img alt='' className={styles.card} style={{ width: 450, height: 350 }}
+                                <img alt='' className={styles.card} style={{ width: 400, height: 400 }}
                                      src={this.props.imageUrl}/>
                             </div>
-                            {this.props.imagesUrls !== undefined && this.props.imagesUrls.length > 0 ?
+                            {this.props.imagesUrls !== undefined && this.props.imagesUrls.length > 0 && this.props.imagesUrls[0] !== '' ?
                                 <div>
-                                    <img alt='' className={styles.card} style={{ width: 450, height: 350 }}
+                                    <img alt='' className={styles.card} style={{ width: 400, height: 400 }}
                                          src={this.props.imagesUrls[0]}/>
                                 </div>
                                 : null}
                             {this.props.imagesUrls !== undefined && this.props.imagesUrls.length > 1 ?
 
                                 <div>
-                                    <img alt='' className={styles.card} style={{ width: 450, height: 350 }}
+                                    <img alt='' className={styles.card} style={{ width: 400, height: 400 }}
                                          src={this.props.imagesUrls[1]}/>
                                 </div>
                                 : null}
@@ -94,37 +94,34 @@ class GoodsInfo extends React.Component {
                     </Col>
                     <Col span={12}>
 
-                        <Row style={{ textAlign: 'center', height: 50 }}><h2>{this.props.title}</h2></Row>
+                        <Row style={{ textAlign: 'center', height: 70,width:400 }}><h2>{this.props.title}</h2></Row>
 
-                        <Row style={{ height: 50 }} type="flex" justify="space-around" align="middle">
+                        <Row style={{ height: 55 }} type="flex" justify="space-around" align="middle">
                             <Col span={6} align='middle'>售价</Col>
                             <Col span={18}><h1
-                                style={{ color: 'blue', display: 'inline' }}>{this.props.price} </h1>&nbsp;&nbsp;元</Col>
+                                style={{ color: 'red', display: 'inline' }}>{this.props.price} </h1>&nbsp;&nbsp;元</Col>
                         </Row>
-                        <Row style={{ height: 50 }} type="flex" justify="space-around" align="middle">
+                        <Row style={{ height: 55 }} type="flex" justify="space-around" align="middle">
                             <Col span={6} align='middle'>库存</Col>
                             <Col span={18}><h1
-                                style={{ color: 'red', display: 'inline' }}>{this.props.maxNum}</h1>&nbsp;&nbsp;个</Col>
+                                style={{ color: 'blue', display: 'inline' }}>{this.props.maxNum}</h1>&nbsp;&nbsp;个</Col>
                         </Row>
-                        <Row style={{ height: 50 }} type="flex" justify="space-around" align="middle">
+                        <Row style={{ height: 55 }} type="flex" justify="space-around" align="middle">
                             <Col span={6} align='middle'>服务</Col>
-                            <Col span={18}>30天无忧退货 48小时极速退款</Col>
+                            <Col span={18}>30天无忧退货&nbsp;&nbsp;&nbsp;48小时极速退款</Col>
                         </Row>
-                        <Row style={{ height: 50 }} type="flex" justify="space-around" align="middle">
-                            <Col span={6} align='middle'>尺寸</Col>
-                            <Col span={3}>30cm</Col>
-                            <Col span={2}>*</Col>
-                            <Col span={3}>30cm</Col>
-                            <Col span={10}/>
+                        <Row style={{ height: 55 }} type="flex" justify="space-around" align="middle">
+                            <Col span={6} align='middle'>邮费</Col>
+                            <Col span={18}><h3 style={{color: 'red', display: 'inline' }}>15</h3>&nbsp;&nbsp;元</Col>
                         </Row>
-                        <Row style={{ height: 50 }} type="flex" justify="space-around" align="middle">
+                        <Row style={{ height: 55 }} type="flex" justify="space-around" align="middle">
                             <Col span={6} align='middle'>数量</Col>
                             <Col span={18}>
                                 <InputNumber min={1} max={this.props.maxNum} defaultValue={1}
                                              onChange={(value) => this.onChange(value)}/>,
                             </Col>
                         </Row>
-                        <Row style={{ height: 50 }} type="flex" justify="space-around" align="middle">
+                        <Row style={{ height: 55 }} type="flex" justify="space-around" align="middle">
                             <Col span={6}/>
                             <Col span={6}>
                                 <Button onClick={() => this.addShoppingCart(this.props.goodsId)}>加入购物车</Button>

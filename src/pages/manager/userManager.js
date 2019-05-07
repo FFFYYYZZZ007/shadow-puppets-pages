@@ -6,7 +6,6 @@ import {
     Popconfirm,
     Form,
     Button,
-    message,
     Card,
     Select,
     Row,
@@ -21,6 +20,7 @@ import * as numeral from 'numeral';
 import { userDateAnalysis } from '@/services/Analysis';
 import TagCloud from 'ant-design-pro/lib/Charts/TagCloud';
 import moment from 'moment';
+import { showMessage } from '@/util/message';
 
 const FormItem = Form.Item;
 const EditableContext = React.createContext();
@@ -32,16 +32,13 @@ class EditableCell extends React.Component {
             return <InputNumber/>;
         }
         if (this.props.inputType === 'sexRadio') {
-            console.log(this.props.value);
             return <Select initialValue={this.props.record.sex}>
                 <Option value={'男'} key={1}>男</Option>
                 <Option value={'女'} key={0}>女</Option>
             </Select>;
         }
         if (this.props.inputType === 'birthday') {
-            console.log(this.props.record.birthday);
-
-            return <DatePicker />
+            return <DatePicker/>;
         }
         return <Input/>;
     };
@@ -192,6 +189,9 @@ class UserManager extends React.Component {
         getUserManagerList(userListQO).then((result) => {
             this.changeLoading();
             let data = [];
+            if (!result.success) {
+                return;
+            }
             result.data.list.map((user) => {
                 data.push({
                     key: user.id,
@@ -223,13 +223,11 @@ class UserManager extends React.Component {
     delete = (key) => {
         this.changeLoading();
         deleteUser(key).then((result) => {
-            if (result.code === '200') {
-                message.success(result.msg);
+            showMessage(result);
+            if (result.success) {
                 this.changeUserManagerList();
-            } else {
-                message.error(result.msg);
-                this.changeLoading();
             }
+            this.changeLoading();
         });
     };
 
@@ -250,7 +248,7 @@ class UserManager extends React.Component {
             if (index > -1) {
                 let item = newData[index];
                 row = {
-                    ...row,birthday:row.birthday.format('YYYY-MM-DD')
+                    ...row, birthday: row.birthday.format('YYYY-MM-DD'),
                 };
                 newData.splice(index, 1, {
                     ...item,
@@ -269,15 +267,11 @@ class UserManager extends React.Component {
             loading: true,
         });
         user = {
-            ...user,birthday:user.birthday.format('YYYY-MM-DD')
+            ...user, birthday: user.birthday.format('YYYY-MM-DD'),
         };
-        console.log(user)
+        console.log(user);
         updateUser(user).then((result) => {
-            if (result.code === '200') {
-                message.success(result.msg);
-            } else {
-                message.error(result.msg);
-            }
+            showMessage(result);
             this.setState({
                 loading: false,
             });

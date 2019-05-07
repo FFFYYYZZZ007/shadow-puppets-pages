@@ -157,7 +157,7 @@ class courseOrderManager extends React.Component {
                 <div style={{ background: '#fff' }}>
                     <Card bordered={false}>
                         <Row type="flex" justify="space-around" align="middle">
-                            <font size={3}>商品订单</font>
+                            <font size={3}>课程订单</font>
                         </Row>
                     </Card>
                 </div>

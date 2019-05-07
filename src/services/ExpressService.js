@@ -19,6 +19,14 @@ export function getOne(orderId) {
     return request(url, option);
 }
 
+export function codeGenerate(expressCarrier) {
+    let url = '/api/delivery/manager/codeGenerate?expressCarrier='+expressCarrier;
+    let option = {
+        method: 'post',
+    };
+    return request(url, option);
+}
+
 export function ship(shipQO) {
     shipQO = JSON.stringify(shipQO);
     let url = '/api/delivery/manager/ship';

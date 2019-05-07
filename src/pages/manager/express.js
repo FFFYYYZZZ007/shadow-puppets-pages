@@ -2,7 +2,7 @@ import React from 'react';
 import {
     Table, Card, Row, Button, Input, Select, Modal, Radio, message,
 } from 'antd';
-import { getList, ship, changeExpressDeliveryStatus } from '@/services/ExpressService';
+import { getList, ship, changeExpressDeliveryStatus, codeGenerate } from '@/services/ExpressService';
 
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
@@ -186,12 +186,12 @@ class CategoryManager extends React.Component {
                 expressCode: this.state.expressCode,
                 expressCarrier: this.state.expressCarrier,
             };
-            if (this.state.expressCarrier === -1){
-                message.error("请选择快递承运商");
+            if (this.state.expressCarrier === -1) {
+                message.error('请选择快递承运商', 1);
                 return;
             }
             if (this.state.expressCode === '') {
-                message.error("请输入快递单号")
+                message.error('请生成快递单号', 1);
                 return;
             }
             ship(shipQO).then((result) => {
@@ -218,13 +218,6 @@ class CategoryManager extends React.Component {
             processStatus: '',
             expressCode: '',
             expressCarrier: -1,
-        });
-    };
-
-    expressCodeChange = (e) => {
-        console.log(e.target.value);
-        this.setState({
-            expressCode: e.target.value,
         });
     };
 
@@ -287,7 +280,7 @@ class CategoryManager extends React.Component {
                         title="修改物流状态"
                         visible={this.state.visible}
                         onOk={this.handleOk}
-                        okText={'确认修改'}
+                        okText={'确认'}
                         cancelText={'取消'}
                         centered
                         destroyOnClose
@@ -296,7 +289,20 @@ class CategoryManager extends React.Component {
                         {this.state.processStatus === '待发货' ?
                             <div>
                                 <h1>发货</h1>
-                                <span>订单号：</span> <Input onChange={this.expressCodeChange}/><br/><br/>
+                                <span>订单号：</span> <Input disabled={true} value={this.state.expressCode}
+                                                         style={{ width: 200 }}/>
+                                &nbsp;&nbsp;<Button onClick={() => {
+                                if (this.state.expressCarrier === -1) {
+                                    message.error('请选择快递承运商', 1);
+                                } else {
+                                    codeGenerate(this.state.expressCarrier).then((result) => {
+                                        this.setState({
+                                            expressCode: result.data,
+                                        });
+                                    });
+                                }
+                            }}>生成订单号</Button>
+                                <br/><br/>
                                 <RadioGroup onChange={this.carrierRadioChange}>
                                     <Radio value={1}>顺丰</Radio>
                                     <Radio value={2}>圆通</Radio>

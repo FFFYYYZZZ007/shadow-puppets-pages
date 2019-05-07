@@ -6,6 +6,7 @@ import {
 } from 'antd';
 import TimedButton from '../components/TimedButton';
 import { register } from '../services/UserService';
+import { showMessage } from '@/util/message';
 
 class RegistrationForm extends React.Component {
     state = {
@@ -41,12 +42,9 @@ class RegistrationForm extends React.Component {
                 return;
             }
             register(temp).then((result) => {
-                console.log(result);
-                if (result.code === '200') {
-                    message.success('注册成功，即将跳转到登录界面',1);
+                showMessage(result);
+                if (result.success) {
                     router.push('/login');
-                } else {
-                    message.error(result.msg);
                 }
             });
         });

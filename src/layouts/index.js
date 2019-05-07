@@ -4,6 +4,7 @@ import MyIcon from '../components/MyIcon';
 import { getCookie, delCookie } from '../util/cookie.js';
 import router from 'umi/router';
 import React from 'react';
+import Auth from '@/pages/error/403';
 
 // 引入子菜单组件
 const SubMenu = Menu.SubMenu;
@@ -64,6 +65,8 @@ class BasicLayout extends React.Component {
     };
 
     render() {
+
+
         if (this.props.location.pathname.match('/manager')) {
             return <Layout>
                 <Sider style={{ minHeight: '100vh', background: '#e6f7ff' }}
@@ -120,9 +123,12 @@ class BasicLayout extends React.Component {
                         </Menu>
                     </Header>
                     <Content style={{ margin: '24px 16px 0' }}>
-                        <div style={{ minHeight: 360 }}>
-                            {this.props.children}
-                        </div>
+                        {getCookie('admin') === 'true' ?
+                            <div style={{ minHeight: 360 }}>
+                                {this.props.children}
+                            </div> :
+                            <Auth/>
+                        }
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>PYC ©2019 Created by fuyuaaa</Footer>
                 </Layout>
@@ -150,7 +156,7 @@ class BasicLayout extends React.Component {
                             <Link to="/mall"><MyIcon type="shopping" name="商城"/></Link>
                         </Menu.Item>
                         <Menu.Item key="study">
-                            <Link to="/course"><MyIcon type="read" name="培训"/></Link>
+                            <Link to="/course"><MyIcon type="read" name="课程"/></Link>
                         </Menu.Item>
                         <Menu.Item>
                             <Search
@@ -224,6 +230,7 @@ class BasicLayout extends React.Component {
                             minHeight: 400,
 
                         }}>
+
                         {this.props.children}
                     </div>
 

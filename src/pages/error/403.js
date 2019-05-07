@@ -1,15 +1,19 @@
 import React from 'react'
-import RenderAuthorized from 'ant-design-pro/lib/Authorized';
-import { Alert } from 'antd';
-
-const { Secured } = RenderAuthorized('user');
-
-@Secured('admin')
-class TestSecuredString extends React.Component {
+import { Exception } from 'ant-design-pro';
+import { Button } from 'antd';
+import router from 'umi/router';
+class Auth extends React.Component {
   render() {
+      const actions = (
+          <div>
+              <Button type="primary" onClick={()=>{
+                  router.push('/')
+              }}>返回主页</Button>
+          </div>
+      );
     return (
-      <Alert message="user Passed!" type="success" showIcon />
+        <Exception type="403" actions={actions} />
     )
   }
 }
-export default TestSecuredString;
+export default Auth;

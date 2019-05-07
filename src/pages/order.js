@@ -271,12 +271,16 @@ class order extends React.Component {
                                                                 />
                                                             </Col>
                                                             <Col span={4}>{goodsVO.goodsName}</Col>
-                                                            <Col span={6}/>
-                                                            <Col span={3}>
+                                                            <Col offset={2} span={3}>
                                                                 <h3>￥{goodsVO.price}</h3>
                                                             </Col>
                                                             <Col span={3}>
                                                                 <h3>{goodsVO.num}个</h3>
+                                                            </Col>
+                                                            <Col span={3}>
+                                                                <Button onClick={() => {
+                                                                    router.push('/goodsDetails?' + goodsVO.id);
+                                                                }}>详情</Button>
                                                             </Col>
                                                         </Row>
                                                         <Divider/>

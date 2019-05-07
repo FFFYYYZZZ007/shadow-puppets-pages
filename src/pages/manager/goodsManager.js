@@ -12,6 +12,8 @@ import {
 } from '../../services/GoodsService';
 import PicturesWall from '../../components/picturesWall';
 import 'ant-design-pro/dist/ant-design-pro.css';
+import router from 'umi/router';
+import { getCookie } from '@/util/cookie';
 
 const FormItem = Form.Item;
 const EditableContext = React.createContext();
@@ -155,8 +157,13 @@ class GoodsManager extends React.Component {
                                         title="此操作不可逆，确认删除?"
                                         onConfirm={() => this.delete(record.key)}>
                                             <Button type='danger'>删除</Button>
-                                        </Popconfirm>
+                                    </Popconfirm>&nbsp;&nbsp;
+                                    <Button type='primary' onClick={() => {
+                                        router.push('/goodsDetails?' + record.key);
+                                    }}>详情
+                                    </Button>
                                     </span>
+
                             )}
                         </div>
                     );
@@ -336,18 +343,16 @@ class GoodsManager extends React.Component {
         console.log(e);
         this.setState({ visible: false, newGoods: {} });
     };
-    handleOk = (e) => {
-        this.setState({ visible: false });
+    handleOk = () => {
         console.log(this.state.newGoods);
         addGoods(this.state.newGoods).then((result) => {
-            console.log(result);
             if (result.success) {
                 message.success(result.msg);
+                this.setState({ visible: false });
                 this.changeGoodsList();
             } else {
                 message.error(result.msg);
             }
-            ;
             this.setState({ newGoods: {} });
         });
     };
@@ -445,7 +450,7 @@ class GoodsManager extends React.Component {
                         </Row>
                     </Card>
                 </div>
-                <div style={{ height: 30 }}></div>
+                <div style={{ height: 30 }}/>
                 <div style={{ background: '#fff' }}>
                     <div style={{ padding: 24 }}>
                         <div style={{ paddingBottom: 20 }}>
@@ -453,7 +458,8 @@ class GoodsManager extends React.Component {
                                 添加商品
                             </Button>
                             <Modal
-                                title="请输入需要商品信息"
+                                style={{ top: 20 }}
+                                title="请输入商品信息"
                                 okText='添加'
                                 cancelText='取消'
                                 destroyOnClose
@@ -478,37 +484,42 @@ class GoodsManager extends React.Component {
                                     </Popconfirm>,
                                 ]}
                             >
-                                {/* 由于还要使用上传图片的组件，所以这里用form的话，我这个菜鸡就不会了 */}
-                                <label>商品名称：</label><Input style={{ width: 200 }}
-                                                           onChange={this.addGoodsNames}/><br/><br/>
-                                <label>商品类别：</label>
-                                <Select style={{ width: 200 }} onChange={this.addGoodsCategory}>
-                                    {categoryList.map(function(data) {
-                                        return <Option value={data.id} key={data.id}>{data.categoryName}</Option>;
-                                    })}
-                                </Select><br/><br/>
-                                <label>商品简介：</label><TextArea style={{ width: 400, height: 100 }}
-                                                              onChange={this.addGoodsIntroduction}/><br/><br/>
-                                <label>商品价格：</label><InputNumber style={{ width: 200 }} precision={2}
-                                                                 onChange={this.addGoodsPrice}/><br/><br/>
-                                <label>商品状态：</label>
-                                <Select style={{ width: 200 }} onChange={this.addGoodsSaleStatus}>
-                                    <Option value="1" key={1}>在售</Option>
-                                    <Option value="0" key={0}>未上架</Option>
-                                </Select><br/><br/>
-                                <label>库存数量：</label><InputNumber style={{ width: 200 }}
-                                                                 onChange={this.addGoodsQuantity}/><br/><br/>
-                                <label>商品主图：</label>
-                                <Upload
-                                    action="/api/goods/manager/image/main/upload/"
-                                    listType="picture-card"
-                                    showUploadList={false}
-                                    onChange={this.addGoodsMainImageUrl}
-                                >
-                                    {this.state.newGoods.mainImageUrl ?
-                                        <img style={{ width: 101, height: 101 }} src={this.state.newGoods.mainImageUrl}
-                                             alt="avatar"/> : uploadButton}
-                                </Upload><br/><br/>
+                                <div>
+                                    {/* 由于还要使用上传图片的组件，所以这里用form的话，我这个菜鸡就不会了 */}
+                                    <label>商品名称：</label><Input style={{ width: 200 }}
+                                                               onChange={this.addGoodsNames}/><br/><br/>
+                                    <label>商品类别：</label>
+                                    <Select style={{ width: 200 }} onChange={this.addGoodsCategory}>
+                                        {categoryList.map(function(data) {
+                                            return <Option value={data.id} key={data.id}>{data.categoryName}</Option>;
+                                        })}
+                                    </Select><br/><br/>
+                                    <label>商品简介：</label><TextArea style={{ width: 200, height: 50 }}
+                                                                  onChange={this.addGoodsIntroduction}/><br/><br/>
+                                    <label>商品价格：</label><InputNumber style={{ width: 200 }} precision={2}
+                                                                     onChange={this.addGoodsPrice}/><br/><br/>
+                                    <label>商品状态：</label>
+                                    <Select style={{ width: 200 }} onChange={this.addGoodsSaleStatus}>
+                                        <Option value="1" key={1}>在售</Option>
+                                        <Option value="0" key={0}>未上架</Option>
+                                    </Select><br/><br/>
+                                    <label>库存数量：</label><InputNumber style={{ width: 200 }}
+                                                                     onChange={this.addGoodsQuantity}/><br/><br/>
+                                    <label>商品主图：</label>
+
+                                    <Upload
+                                        action="/api/goods/manager/image/main/upload/"
+                                        listType="picture-card"
+                                        showUploadList={false}
+                                        onChange={this.addGoodsMainImageUrl}
+                                        headers={{'ACCESS_TOKEN': getCookie('ACCESS_TOKEN')}}
+                                    >
+                                        {this.state.newGoods.mainImageUrl ?
+                                            <img style={{ width: 101, height: 101 }}
+                                                 src={this.state.newGoods.mainImageUrl}
+                                                 alt="avatar"/> : uploadButton}
+                                    </Upload>
+                                </div>
                             </Modal>
                         </div>
                         <EditableContext.Provider value={this.props.form}>

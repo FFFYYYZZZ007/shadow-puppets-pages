@@ -1,8 +1,9 @@
 import React from 'react';
-import { Divider, Icon, Col, Row, Pagination, message, Spin, Card } from 'antd';
+import { Divider, Icon, Col, Row, Pagination, message, Spin, Card, Tooltip } from 'antd';
 import styles from './css/course.css';
 import { getCourseList } from '@/services/CourseService';
 import router from 'umi/router';
+import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 
 class Course extends React.Component {
 
@@ -78,42 +79,49 @@ class Course extends React.Component {
                 </div>
                 <div>
                     <Spin spinning={this.state.spinning}>
-                        <Row gutter={40}>
+                        <Row gutter={60}>
                             {this.state.list.map((course) => {
                                 return (
                                     <Col span={6} key={course.id}>
-                                        <div
-                                            style={{ paddingTop: 10 }}
-                                        >
+                                        <div style={{ paddingTop: 10 }}>
                                             <Card
                                                 bordered={false}
                                                 className={styles.card}
                                                 onClick={() => this.jump2CourseDetail(course.id)}
                                                 hoverable
-                                                bodyStyle={{height:240}}
+                                                bodyStyle={{ height: 210, padding: 0 }}
                                             >
                                                 <img className={styles.img} alt=""
                                                      src={course.mainImageUrl}/>
-                                                <div style={{ paddingTop: 10 }}>
-                                                    &nbsp;&nbsp;&nbsp;
-                                                    <b style={{ fontSize: 20, fontFamily: '宋体' }}
+                                                <div style={{ paddingLeft: 20, paddingTop: 10 }}>
+                                                    <b style={{ fontSize: 16, fontFamily: '宋体' }}
                                                     >
-                                                        {course.courseName}
+                                                        <Tooltip title={course.courseName}>
+                                                            <Ellipsis length={8}>{course.courseName}</Ellipsis>
+                                                        </Tooltip>
                                                     </b>
-                                                    <p style={{ color: '#888' }}>
-                                                        &nbsp;&nbsp;&nbsp;已参加人数&nbsp;&nbsp;&nbsp;
-                                                        <Icon type="user"/>
-                                                        &nbsp;&nbsp;&nbsp;{course.paidNumber}
-                                                    </p>
+                                                    <div style={{ color: '#888' }}>
+                                                        <b style={{
+                                                            fontSize: 15,
+                                                            color: 'red',
+                                                        }}>￥&nbsp;{course.courseDiscountPrice}</b>
+                                                        <font style={{ fontSize: 15, float: 'right' }}>
+                                                            <Icon type="user"/>
+                                                            &nbsp;&nbsp;&nbsp;
+                                                            {course.paidNumber}
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        </font>
+                                                    </div>
                                                 </div>
                                             </Card>
                                         </div>
+
                                     </Col>
                                 );
                             })}
                         </Row>
                     </Spin>
-                    <div style={{ textAlign: 'center',paddingTop:20}}>
+                    <div style={{ textAlign: 'center', paddingTop: 20 }}>
                         <Pagination
                             hideOnSinglePage={true}
                             pageSize={this.state.pageSize}

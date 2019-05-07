@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, message } from 'antd';
-import { sendVerificationCode } from '../services/UserService'
+import { sendVerificationCode } from '../services/UserService';
 
 
 class MyButton extends React.Component {
@@ -8,7 +8,7 @@ class MyButton extends React.Component {
     state = {
         time: 60,
         btnDisable: false,
-        btnContent: '发送验证码'
+        btnContent: '发送验证码',
     };
 
     render() {
@@ -23,7 +23,7 @@ class MyButton extends React.Component {
                 ti = ti - 1;
                 this.setState({
                     time: ti,
-                    btnContent: ti + "s",
+                    btnContent: ti + 's',
                 });
             } else {
                 //当ti=0时执行终止循环方法
@@ -31,7 +31,7 @@ class MyButton extends React.Component {
                 this.setState({
                     btnDisable: false,
                     time: 60,
-                    btnContent: "发送验证码",
+                    btnContent: '发送验证码',
                 });
             }
         };
@@ -39,7 +39,7 @@ class MyButton extends React.Component {
         const sendCode = () => {
             this.setState({
                 btnDisable: true,
-                btnContent: "60s",
+                btnContent: '60s',
             });
             sendVerificationCode(tel).then((result) => {
                 console.log(result);
@@ -48,7 +48,7 @@ class MyButton extends React.Component {
                 } else {
                     message.error(result.msg);
                 }
-            })
+            });
 
             //每隔一秒执行一次clock方法
             timeChange = setInterval(clock, 1000);
@@ -56,9 +56,10 @@ class MyButton extends React.Component {
 
         return (
             <React.Fragment>
-                <Button style={{ width: 100 }} inline='true' onClick={sendCode} disabled={this.state.btnDisable}>{this.state.btnContent}</Button>
+                <Button style={{ width: 100 }} inline='true' onClick={sendCode}
+                        disabled={this.state.btnDisable}>{this.state.btnContent}</Button>
             </React.Fragment>
-        )
+        );
     }
 }
 

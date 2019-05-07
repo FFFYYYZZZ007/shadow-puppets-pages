@@ -240,7 +240,7 @@ class courseOrder extends React.Component {
                                                     }}
                                                     visible={this.state.drawerVisible}
                                                 >
-                                                    <p>手机：{order.courseVO.teacherName}</p>
+                                                    <p>手机：{order.courseVO.teacherTel}</p>
                                                     <p>姓名：{order.courseVO.teacherName}</p>
                                                     <p>地点：{order.courseVO.coursePlace}</p>
                                                 </Drawer>

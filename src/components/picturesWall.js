@@ -1,6 +1,7 @@
 import React from 'react';
 import { Upload, Icon, Modal, message } from 'antd';
 import { removeGoodsImage } from '../services/GoodsService';
+import { getCookie } from '@/util/cookie';
 
 class PicturesWall extends React.Component {
 
@@ -92,6 +93,7 @@ class PicturesWall extends React.Component {
                     onPreview={this.handlePreview}
                     onChange={this.handleChange}
                     onRemove={this.handleRemove}
+                    headers={{'ACCESS_TOKEN': getCookie('ACCESS_TOKEN')}}
                 >
                     {fileList.length >= 10 ? null : uploadButton}
                 </Upload>

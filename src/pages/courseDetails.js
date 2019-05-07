@@ -20,6 +20,7 @@ import styles from './css/courseDetails.css';
 import moment from 'moment';
 import router from 'umi/router';
 import { getCommentList } from '@/services/CourseCommentService';
+import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 
 const TabPane = Tabs.TabPane;
 
@@ -135,7 +136,7 @@ class courseDetails extends React.Component {
                 loading: false,
                 commentList: result.data.list,
                 commentQO: {
-                    ...this.state.commentQO,total:result.data.total
+                    ...this.state.commentQO, total: result.data.total,
                 },
             });
         });
@@ -149,12 +150,13 @@ class courseDetails extends React.Component {
             message.error(result.msg, 1);
         }
     }
+
     //页码改变调用方法
     pageChange = (page) => {
         console.log(page);
         this.setState({
             commentQO: {
-                ...this.state.commentQO,pageNum:page
+                ...this.state.commentQO, pageNum: page,
             },
         }, () => this.reloadCommentList());
 
@@ -189,10 +191,10 @@ class courseDetails extends React.Component {
                                 <Col offset={1} span={3}>
                                     <p style={{ fontSize: 15 }}>学习人数：&nbsp;{this.state.course.paidNumber}&nbsp;</p>
                                 </Col>
-                                <Col offset={1} span={3}>
+                                <Col offset={1} span={6}>
                                     <p style={{ fontSize: 15 }}>地点：&nbsp;{this.state.course.coursePlace}&nbsp;</p>
                                 </Col>
-                                <Col offset={6} span={3}>
+                                <Col offset={3} span={3}>
                                     <Button type={'primary'} onClick={() => this.createCourseOrder()}>立即购买</Button>
                                 </Col>
                             </Row>
@@ -210,13 +212,21 @@ class courseDetails extends React.Component {
                                     <div>
                                         <div className={styles.detail_introduce}>
                                             <div style={{ padding: 20 }}>
-                                                简介：{this.state.course.courseIntroduction}
+                                                <h3>课程简介：</h3>
+                                                <p>{this.state.course.courseIntroduction}</p>
                                             </div>
                                         </div>
                                         <div style={{ height: 20 }}/>
                                         <div className={styles.detail_content}>
                                             <div style={{ padding: 20 }}>
-                                                内容：{this.state.course.courseContent}
+                                                <h1>课程内容：</h1>
+                                                {this.state.course.courseContent !== undefined ? this.state.course.courseContent.split(';').map((content) => {
+                                                    return (
+                                                        <div key={content}>
+                                                            <h1>{content}</h1>
+                                                        </div>
+                                                    );
+                                                }) : null}
                                             </div>
                                         </div>
                                     </div>
@@ -239,7 +249,8 @@ class courseDetails extends React.Component {
                                                                 content={(
                                                                     <div>
                                                                         <p>{comment.content}</p>
-                                                                        <Rate disabled defaultValue={comment.starLevel} />
+                                                                        <Rate disabled
+                                                                              defaultValue={comment.starLevel}/>
                                                                     </div>
                                                                 )}
                                                                 datetime={(
@@ -253,7 +264,7 @@ class courseDetails extends React.Component {
                                                         </div>
                                                     );
                                                 })
-                                                : <center style={{fontSize:20}}>暂无评论</center>}
+                                                : <center style={{ fontSize: 20 }}>暂无评论</center>}
                                         </Spin>
                                         <center>
                                             <Pagination
@@ -275,7 +286,8 @@ class courseDetails extends React.Component {
                                         {this.state.recommend.map((course) => {
                                             return (
                                                 <div key={course.id}>
-                                                    <Card hoverable={true} bordered={false} style={{ height: 100 }}>
+                                                    <Card hoverable={true} bordered={false}
+                                                          bodyStyle={{ height: 72, padding: 6 }}>
                                                         <Row>
                                                             <Col span={6}>
                                                                 <img onClick={() => this.jump2CourseDetail(course.id)}
@@ -283,7 +295,12 @@ class courseDetails extends React.Component {
                                                                      src={course.mainImageUrl}/>
                                                             </Col>
                                                             <Col offset={4} span={14}>
-                                                                <p>{course.courseName}</p>
+                                                                <p>
+                                                                    <Tooltip title={course.courseName}>
+                                                                        <Ellipsis
+                                                                            length={8}>{course.courseName}</Ellipsis>
+                                                                    </Tooltip>
+                                                                </p>
                                                                 <p>
                                                                     <Icon type="user"/>
                                                                     &nbsp;&nbsp;{course.paidNumber}

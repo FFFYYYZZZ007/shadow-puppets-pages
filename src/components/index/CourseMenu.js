@@ -1,8 +1,9 @@
 import React from 'react';
-import { Tabs, Icon, Row, Col, Card, Spin,  } from 'antd';
+import { Tabs, Icon, Row, Col, Card, Spin, Tooltip } from 'antd';
 import styles from '@/pages/css/course.css';
 import { getCourseList } from '@/services/CourseService';
 import router from 'umi/router';
+import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 
 const TabPane = Tabs.TabPane;
 class CourseMenu extends React.Component {
@@ -48,39 +49,51 @@ class CourseMenu extends React.Component {
                 <Tabs defaultActiveKey="2" style={{ paddingTop: 30 }}>
                     <TabPane tab={<span><Icon type="read" />推荐课程</span>} key="1">
                         <Spin spinning={this.state.spinning}>
-                            <Row gutter={40}>
+                            <div style={{paddingLeft:30,paddingRight:30}}>
+                            <Row gutter={60} >
                                 {this.state.list.map((course) => {
                                     return (
                                         <Col span={6} key={course.id}>
-                                            <div
-                                                style={{ paddingTop: 10 }}
-                                            >
+                                            <div style={{ paddingTop: 10 }}>
                                                 <Card
                                                     bordered={false}
                                                     className={styles.card}
                                                     onClick={() => this.jump2CourseDetail(course.id)}
                                                     hoverable
-                                                    bodyStyle={{height:240}}
+                                                    bodyStyle={{ height: 210, padding: 0 }}
                                                 >
                                                     <img className={styles.img} alt=""
                                                          src={course.mainImageUrl}/>
-                                                    <div style={{ paddingTop: 10 }}>
-                                                        &nbsp;&nbsp;&nbsp;
-                                                        <b style={{ fontSize: 20, fontFamily: '宋体' }}
+                                                    <div style={{ paddingLeft: 20, paddingTop: 10 }}>
+                                                        <b style={{ fontSize: 16, fontFamily: '宋体' }}
                                                         >
-                                                            {course.courseName}
+                                                            <Tooltip title={course.courseName}>
+                                                                <Ellipsis length={8}>{course.courseName}</Ellipsis>
+                                                            </Tooltip>
                                                         </b>
-                                                        <p style={{ color: '#888' }}>
-                                                            &nbsp;&nbsp;&nbsp;已参加人数&nbsp;&nbsp;&nbsp;
-                                                            <Icon type="user"/>
-                                                            &nbsp;&nbsp;&nbsp;{course.paidNumber}
-                                                        </p>
+                                                        <div style={{ color: '#888' }}>
+                                                            <b style={{
+                                                                fontSize: 15,
+                                                                color: 'red',
+                                                            }}>￥&nbsp;{course.courseDiscountPrice}</b>
+                                                            <font style={{ fontSize: 15, float: 'right' }}>
+                                                                <Icon type="user"/>
+                                                                &nbsp;&nbsp;&nbsp;
+                                                                {course.paidNumber}
+                                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            </font>
+                                                        </div>
                                                     </div>
                                                 </Card>
                                             </div>
+
                                         </Col>
                                     );
                                 })}
+                            </Row>
+                            </div>
+                            <Row>
+                                &nbsp;
                             </Row>
                         </Spin>
                     </TabPane>

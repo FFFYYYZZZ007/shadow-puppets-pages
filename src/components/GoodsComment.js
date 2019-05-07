@@ -11,14 +11,13 @@ class GoodsComment extends React.Component {
         loading: true,
         commentQO: {
             pageNum: 1,
-            pageSize: 10,
+            pageSize: 5,
             total: 0,
         },
     };
 
     componentDidMount() {
         this.reloadCommentList();
-
     }
 
     reloadCommentList() {
@@ -54,6 +53,7 @@ class GoodsComment extends React.Component {
         return (
             <div>
                 <Spin spinning={this.state.loading}>
+                    {this.state.commentList.length === 0?<center><h1>暂无评价</h1></center>:null}
                     {this.state.commentList.map(comment => {
                         return (
                             <div key={'comment_' + comment.id}

@@ -4,6 +4,7 @@ import {
 } from 'antd';
 import 'ant-design-pro/dist/ant-design-pro.css';
 import { addCourse, deleteCourse, getCourseManagerList, updateCourse } from '@/services/CourseService';
+import { getCookie } from '@/util/cookie';
 
 const FormItem = Form.Item;
 const EditableContext = React.createContext();
@@ -13,10 +14,10 @@ class EditableCell extends React.Component {
 
     getInput = () => {
         if (this.props.inputType === 'hours') {
-            return <InputNumber/>;
+            return <InputNumber style={{width:50}}/>;
         }
         if (this.props.inputType === 'price') {
-            return <InputNumber precision={2}/>;
+            return <InputNumber precision={2} style={{width:60}}/>;
         }
         return <Input/>;
     };
@@ -58,19 +59,21 @@ class CourseManager extends React.Component {
             { title: '课程ID', dataIndex: 'id', width: '7%' },
             { title: '课程名', dataIndex: 'courseName', width: '10%', editable: true },
             { title: '教师', dataIndex: 'teacherName', width: '7%', editable: true },
+            { title: '联系方式', dataIndex: 'teacherTel', width: '7%', editable: true },
             {
                 title: '主图',
                 dataIndex: 'mainImageUrl',
-                width: '10%',
+                width: '7%',
                 render: text => <img style={{ height: 100, width: 170 }} alt='' src={text}/>,
             },
-            { title: '原价', dataIndex: 'courseOriginPrice', width: '7%', editable: true, inputType: 'price' },
-            { title: '折扣价', dataIndex: 'courseDiscountPrice', width: '7%', editable: true, inputType: 'price' },
+            { title: '原价', dataIndex: 'courseOriginPrice', width: '6%', editable: true, inputType: 'price' },
+            { title: '折扣价', dataIndex: 'courseDiscountPrice', width: '6%', editable: true, inputType: 'price' },
             { title: '时长/h', dataIndex: 'courseHours', width: '7%', editable: true, inputType: 'hours' },
-            { title: '付款人数', dataIndex: 'paidNumber', width: '8%' },
+            { title: '付款人数', dataIndex: 'paidNumber', width: '9%' },
             { title: '地点', dataIndex: 'coursePlace', width: '10%', editable: true },
             {
                 title: '操作',
+                width:'18%',
                 dataIndex: 'operation',
                 render: (text, record) => {
                     const { editingKey } = this.state;
@@ -141,9 +144,9 @@ class CourseManager extends React.Component {
         getCourseManagerList(courseQO).then((result) => {
             console.log(result);
             let data = [];
-            result.data.list.map((goods) => {
+            result.data.list.map((course) => {
                 data.push({
-                    ...goods, key: goods.id,
+                    ...course, key: course.id,
                 });
                 return null;
             });
@@ -257,8 +260,14 @@ class CourseManager extends React.Component {
     addCourseIntroduction = (e) => {
         this.setState({ newCourse: { ...this.state.newCourse, courseIntroduction: e.target.value } });
     };
+    addCourseContent= (e) => {
+        this.setState({ newCourse: { ...this.state.newCourse, courseContent: e.target.value } });
+    };
     addTeacherName = (e) => {
         this.setState({ newCourse: { ...this.state.newCourse, teacherName: e.target.value } });
+    };
+    addTeacherTel = (e) => {
+        this.setState({ newCourse: { ...this.state.newCourse, teacherTel: e.target.value } });
     };
     addCourseOriginPrice = (value) => {
         this.setState({ newCourse: { ...this.state.newCourse, courseOriginPrice: value } });
@@ -364,20 +373,25 @@ class CourseManager extends React.Component {
                                                        onChange={this.addCourseName}/><br/><br/>
                             <label>课程简介：</label><TextArea style={{ width: 200 }}
                                                           onChange={this.addCourseIntroduction}/><br/><br/>
-                            <label>课程教师：</label><TextArea style={{ width: 200 }}
+                            <label>课程简介：</label><TextArea style={{ width: 200,height:100 }}
+                                                          onChange={this.addCourseContent}/>&nbsp;建议分点以英文分号(;)隔开<br/><br/>
+                            <label>课程教师：</label><Input style={{ width: 200 }}
                                                           onChange={this.addTeacherName}/><br/><br/>
+                            <label>联系方式：</label><Input style={{ width: 200 }}
+                                                       onChange={this.addTeacherTel}/><br/><br/>
                             <label>课程原价：</label><InputNumber precision={2} style={{ width: 200 }}
                                                              onChange={this.addCourseOriginPrice}/><br/><br/>
                             <label>折扣价格：</label><InputNumber precision={2} style={{ width: 200 }}
                                                              onChange={this.addCourseDiscountPrice}/><br/><br/>
                             <label>课程时长：</label><InputNumber style={{ width: 200 }}
                                                              onChange={this.addCourseHours}/><br/><br/>
-                            <label>课程地点：</label><TextArea style={{ width: 200 }}
+                            <label>课程地点：</label><Input style={{ width: 200 }}
                                                           onChange={this.addCoursePlace}/><br/><br/>
                             <Upload
                                 action="/api/course/manager/image/main/upload/"
                                 listType="picture-card"
                                 showUploadList={false}
+                                headers={{'ACCESS_TOKEN': getCookie('ACCESS_TOKEN')}}
                                 onChange={this.addCourseMainImageUrl}
                             >
                                 {this.state.newCourse.mainImageUrl ?

@@ -1,21 +1,26 @@
-import React from 'react'
+import React from 'react';
 import {
-    Table, Input, InputNumber, Popconfirm, Form, Button, message, Card, Row, Modal
+    Table, Input, InputNumber, Popconfirm, Form, Button, Card, Row, Modal,
 } from 'antd';
-import { getCategory, addCategory, updateCategory, removeCategory } from '../../services/GoodsService'
+import { getCategory, addCategory, updateCategory, removeCategory } from '../../services/GoodsService';
+import { showMessage } from '@/util/message';
+
 const FormItem = Form.Item;
 const EditableContext = React.createContext();
 
 class EditableCell extends React.Component {
 
-    componentWillUpdate() {
-        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
+    componentDidMount() {
+        document.getElementById('root').scrollIntoView(true);
     }
 
     getInput = () => {
-        if (this.props.inputType === 'number') { return <InputNumber />; }
-        return <Input />;
+        if (this.props.inputType === 'number') {
+            return <InputNumber/>;
+        }
+        return <Input/>;
     };
+
     render() {
         const {
             editing, dataIndex, title, inputType, record, index, ...restProps
@@ -53,12 +58,12 @@ class CategoryManager extends React.Component {
             editingKey: '',
             loading: false,
             visible: false,
-            addInput: ''
+            addInput: '',
         };
         this.columns = [
-            { title: '类别ID', dataIndex: 'id', width: '25%', },
-            { title: '类别名', dataIndex: 'categoryName', width: '25%', editable: true, },
-            { title: '更新时间', dataIndex: 'dateUpdate', width: '25%', },
+            { title: '类别ID', dataIndex: 'id', width: '25%' },
+            { title: '类别名', dataIndex: 'categoryName', width: '25%', editable: true },
+            { title: '更新时间', dataIndex: 'dateUpdate', width: '25%' },
             {
                 title: '操作',
                 dataIndex: 'operation',
@@ -84,15 +89,16 @@ class CategoryManager extends React.Component {
                                     </Popconfirm>
                                 </span>
                             ) : (
-                                    <span>
-                                        <Button type='primary' disabled={editingKey !== ''} onClick={() => this.edit(record.key)}>编辑</Button>&nbsp;&nbsp;
-                                        <Popconfirm
-                                            title="此操作不可逆，确认删除?"
-                                            onConfirm={() => this.delete(record.key)}>
+                                <span>
+                                        <Button type='primary' disabled={editingKey !== ''}
+                                                onClick={() => this.edit(record.key)}>编辑</Button>&nbsp;&nbsp;
+                                    <Popconfirm
+                                        title="此操作不可逆，确认删除?"
+                                        onConfirm={() => this.delete(record.key)}>
                                             <Button type='danger'>删除</Button>
                                         </Popconfirm>
                                     </span>
-                                )}
+                            )}
                         </div>
                     );
                 },
@@ -100,12 +106,14 @@ class CategoryManager extends React.Component {
         ];
     }
 
-    componentDidMount() { this.changeCategory() }
+    componentDidMount() {
+        this.changeCategory();
+    }
 
     changeCategory() {
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         getCategory().then((result) => {
             this.changeLoading();
             let data = [];
@@ -117,30 +125,30 @@ class CategoryManager extends React.Component {
                     dateUpdate: c.dateUpdate,
                 });
                 return null;
-            })
+            });
             this.setState({
                 data: data,
-            })
-            console.log(result)
-        })
+            });
+            console.log(result);
+        });
     }
+
     isEditing = record => record.key === this.state.editingKey;
-    cancel = () => { this.setState({ editingKey: '' }); };
+    cancel = () => {
+        this.setState({ editingKey: '' });
+    };
 
     delete = (key) => {
-        this.changeLoading()
+        this.changeLoading();
         removeCategory(key).then((result) => {
-            if (result.code === '200') {
-                message.success(result.msg);
-                this.changeCategory()
-            } else {
-                message.error(result.msg)
-                this.changeCategory()
-            }
-        })
-    }
+            showMessage(result);
+            this.changeCategory();
+        });
+    };
 
-    changeLoading() { this.setState({ loading: this.state.loading ? false : true }) }
+    changeLoading() {
+        this.setState({ loading: this.state.loading ? false : true });
+    }
 
     save(form, key) {
         form.validateFields((error, row) => {
@@ -167,38 +175,46 @@ class CategoryManager extends React.Component {
     onUpdateCategory(category) {
         category = {
             id: category.id,
-            categoryName: category.categoryName
-        }
+            categoryName: category.categoryName,
+        };
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         updateCategory(category).then((result) => {
-            if (result.code === '200') {
-                message.success(result.msg);
-            } else {
-                message.error(result.msg)
-            }
+            showMessage(result);
             this.setState({
-                loading: false
-            })
-        })
+                loading: false,
+            });
+        });
     }
 
-    edit(key) { this.setState({ editingKey: key }); }
-    showModal = () => { this.setState({ visible: true, }); }
-    handleCancel = (e) => { console.log(e); this.setState({ visible: false, }); }
-    addInputChange(e) { this.setState({ addInput: e.target.value }) }
+    edit(key) {
+        this.setState({ editingKey: key });
+    }
+
+    showModal = () => {
+        this.setState({ visible: true });
+    };
+    handleCancel = (e) => {
+        console.log(e);
+        this.setState({ visible: false });
+    };
+
+    addInputChange(e) {
+        this.setState({ addInput: e.target.value });
+    }
+
     handleOk = (e) => {
         this.changeLoading();
         addCategory({ categoryName: this.state.addInput }).then((result) => {
             this.changeLoading();
+            showMessage(result);
             if (result.success === true) {
-                message.success(result.msg);
-                this.changeCategory()
-            } else { message.error(result.msg); }
+                this.changeCategory();
+            }
         });
-        this.setState({ visible: false, });
-    }
+        this.setState({ visible: false });
+    };
 
     render() {
         const components = {
@@ -244,7 +260,7 @@ class CategoryManager extends React.Component {
                                 onOk={this.handleOk}
                                 onCancel={this.handleCancel}
                             >
-                                <Input style={{ width: 200 }} onChange={(e) => this.addInputChange(e)}></Input>
+                                <Input style={{ width: 200 }} onChange={(e) => this.addInputChange(e)}/>
                             </Modal>
                         </div>
                         <EditableContext.Provider value={this.props.form}>

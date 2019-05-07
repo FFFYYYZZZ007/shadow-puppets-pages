@@ -310,7 +310,7 @@ class CourseOrderInfo extends React.Component {
                     onClose={this.drawerClose}
                     visible={this.state.drawerVisible}
                 >
-                    <p>手机：{this.state.order.courseVO.teacherName}</p>
+                    <p>手机：{this.state.order.courseVO.teacherTel}</p>
                     <p>姓名：{this.state.order.courseVO.teacherName}</p>
                     <p>地点：{this.state.order.courseVO.coursePlace}</p>
                 </Drawer>
