@@ -37,21 +37,20 @@ class MyButton extends React.Component {
         };
 
         const sendCode = () => {
-            this.setState({
-                btnDisable: true,
-                btnContent: '60s',
-            });
             sendVerificationCode(tel).then((result) => {
                 console.log(result);
-                if (result.code === '200') {
+                if (result.success) {
+                    this.setState({
+                        btnDisable: true,
+                        btnContent: '60s',
+                    });
                     message.success('发送验证码成功!');
+                    //每隔一秒执行一次clock方法
+                    timeChange = setInterval(clock, 1000);
                 } else {
                     message.error(result.msg);
                 }
             });
-
-            //每隔一秒执行一次clock方法
-            timeChange = setInterval(clock, 1000);
         };
 
         return (

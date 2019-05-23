@@ -14,7 +14,7 @@ import {
     Rate,
     Modal, Input,
 } from 'antd';
-import { closeOrder, confirmStudy, getCourseOrderList } from '@/services/CourseService';
+import { closeOrder, confirmStudy, getUserCourseOrderList } from '@/services/CourseService';
 import styles from '@/pages/css/order.css';
 import router from 'umi/router';
 import { addComment } from '@/services/CourseCommentService';
@@ -57,7 +57,7 @@ class courseOrder extends React.Component {
         };
         console.log(courseOrderQO);
         this.setState({ spinning: true });
-        getCourseOrderList(courseOrderQO).then((result) => {
+        getUserCourseOrderList(courseOrderQO).then((result) => {
             console.log(result);
             this.setState({
                 orderList: result.data.list,

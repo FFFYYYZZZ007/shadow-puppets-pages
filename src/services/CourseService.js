@@ -121,6 +121,17 @@ export function closeOrder(id) {
     return request(url, option);
 }
 
+export function getUserCourseOrderList(courseOrderQO) {
+    courseOrderQO = JSON.stringify(courseOrderQO);
+    let url = '/api/course/order/user/list';
+    let option = {
+        method: 'POST',
+        body: courseOrderQO,
+        headers: { 'Content-type': 'application/json; charset=utf-8' },
+    };
+    return request(url, option);
+}
+
 export function getCourseOrderList(courseOrderQO) {
     courseOrderQO = JSON.stringify(courseOrderQO);
     let url = '/api/course/order/list';

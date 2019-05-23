@@ -38,7 +38,7 @@ class courseDetails extends React.Component {
     };
 
     componentDidMount() {
-        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
+        document.getElementById('root').scrollIntoView(true);
         let id = this.GetUrlByParamName('courseId');
         this.getCourseDetail(id);
         this.getRecommendList();

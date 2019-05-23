@@ -5,6 +5,7 @@ import {
 import 'ant-design-pro/dist/ant-design-pro.css';
 import { addCourse, deleteCourse, getCourseManagerList, updateCourse } from '@/services/CourseService';
 import { getCookie } from '@/util/cookie';
+import router from 'umi/router';
 
 const FormItem = Form.Item;
 const EditableContext = React.createContext();
@@ -14,10 +15,10 @@ class EditableCell extends React.Component {
 
     getInput = () => {
         if (this.props.inputType === 'hours') {
-            return <InputNumber style={{width:50}}/>;
+            return <InputNumber style={{ width: 50 }}/>;
         }
         if (this.props.inputType === 'price') {
-            return <InputNumber precision={2} style={{width:60}}/>;
+            return <InputNumber precision={2} style={{ width: 60 }}/>;
         }
         return <Input/>;
     };
@@ -73,7 +74,7 @@ class CourseManager extends React.Component {
             { title: '地点', dataIndex: 'coursePlace', width: '10%', editable: true },
             {
                 title: '操作',
-                width:'18%',
+                width: '18%',
                 dataIndex: 'operation',
                 render: (text, record) => {
                     const { editingKey } = this.state;
@@ -104,7 +105,16 @@ class CourseManager extends React.Component {
                                         title="确认删除?"
                                         onConfirm={() => this.delete(record.key)}>
                                             <Button type='danger'>删除</Button>
-                                        </Popconfirm>
+                                    </Popconfirm>&nbsp;&nbsp;
+                                    <p/>
+                                    <Button type='primary'  onClick={()=>{
+                                        router.push({
+                                            pathname: '/courseDetails',
+                                            query: {
+                                                courseId: record.key,
+                                            },
+                                        });
+                                    }}>详情</Button>
                                     </span>
                             )}
                         </div>
@@ -260,7 +270,7 @@ class CourseManager extends React.Component {
     addCourseIntroduction = (e) => {
         this.setState({ newCourse: { ...this.state.newCourse, courseIntroduction: e.target.value } });
     };
-    addCourseContent= (e) => {
+    addCourseContent = (e) => {
         this.setState({ newCourse: { ...this.state.newCourse, courseContent: e.target.value } });
     };
     addTeacherName = (e) => {
@@ -373,10 +383,10 @@ class CourseManager extends React.Component {
                                                        onChange={this.addCourseName}/><br/><br/>
                             <label>课程简介：</label><TextArea style={{ width: 200 }}
                                                           onChange={this.addCourseIntroduction}/><br/><br/>
-                            <label>课程简介：</label><TextArea style={{ width: 200,height:100 }}
+                            <label>课程内容：</label><TextArea style={{ width: 200, height: 100 }}
                                                           onChange={this.addCourseContent}/>&nbsp;建议分点以英文分号(;)隔开<br/><br/>
                             <label>课程教师：</label><Input style={{ width: 200 }}
-                                                          onChange={this.addTeacherName}/><br/><br/>
+                                                       onChange={this.addTeacherName}/><br/><br/>
                             <label>联系方式：</label><Input style={{ width: 200 }}
                                                        onChange={this.addTeacherTel}/><br/><br/>
                             <label>课程原价：</label><InputNumber precision={2} style={{ width: 200 }}
@@ -386,12 +396,12 @@ class CourseManager extends React.Component {
                             <label>课程时长：</label><InputNumber style={{ width: 200 }}
                                                              onChange={this.addCourseHours}/><br/><br/>
                             <label>课程地点：</label><Input style={{ width: 200 }}
-                                                          onChange={this.addCoursePlace}/><br/><br/>
+                                                       onChange={this.addCoursePlace}/><br/><br/>
                             <Upload
                                 action="/api/course/manager/image/main/upload/"
                                 listType="picture-card"
                                 showUploadList={false}
-                                headers={{'ACCESS_TOKEN': getCookie('ACCESS_TOKEN')}}
+                                headers={{ 'ACCESS_TOKEN': getCookie('ACCESS_TOKEN') }}
                                 onChange={this.addCourseMainImageUrl}
                             >
                                 {this.state.newCourse.mainImageUrl ?

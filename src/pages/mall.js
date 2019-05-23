@@ -40,11 +40,8 @@ const mapDispatchToProps = (dispatch) => {
 @connect(mapStateToProps, mapDispatchToProps)
 class mall extends React.Component {
 
-    componentWillUpdate() {
-        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
-    };
-
     componentDidMount() {
+        document.getElementById('root').scrollIntoView(true);//为ture返回顶部，false为底部
         this.props.onDidMountGetCategory();
     }
 
@@ -64,7 +61,7 @@ class mall extends React.Component {
         super(props);
         this.state = {
             pageNum: 1,
-            pageSize: 12,
+            pageSize: 8,
             selectedTags: [],
             category: 0,
             keyword: mall.GetUrlByParamName('keyword'),
@@ -134,7 +131,16 @@ class mall extends React.Component {
                                 </Col>
                             );
                         })
+                    }<Col span={2}>
+                    {this.state.keyword === ''|| this.state.keyword===null? null :
+                        <Tag closable onClose={() => {
+                            this.setState({
+                                keyword: '',
+                            });
+                            window.location.href = '/mall';
+                        }}>{this.state.keyword}</Tag>
                     }
+                </Col>
                 </Row>
                 <hr/>
                 <Row style={{ paddingTop: 30 }}>
